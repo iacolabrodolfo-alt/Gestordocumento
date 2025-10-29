@@ -1,0 +1,304 @@
+[2025-10-29 17:18:24] 🎯 PROCESAR_EXCEL.PHP INICIADO
+[2025-10-29 17:18:24] ❌ ACCESO DENEGADO: Usuario no autorizado
+[2025-10-29 18:00:16] 🎯 PROCESAR_EXCEL.PHP INICIADO
+[2025-10-29 18:00:16] ❌ ERROR: No hay sesión de usuario
+[2025-10-29 18:01:30] 🎯 PROCESAR_EXCEL.PHP INICIADO
+[2025-10-29 18:01:30] ❌ ERROR: No hay sesión de usuario
+[2025-10-29 18:09:59] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:09:59] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:09:59] 🔍 Verificando archivo subido...
+[2025-10-29 18:09:59] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:09:59] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:09:59] 📏 Tamaño: 916273 bytes
+[2025-10-29 18:09:59] 💾 Guardando en: ../../files/uploads/20251029_180959_69024a6710f1e_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:09:59] ✅ Archivo guardado exitosamente
+[2025-10-29 18:09:59] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:09:59] 📝 Registrando log en BD - Estado: PROCESANDO
+[2025-10-29 18:11:38] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:11:38] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:11:38] 🔍 Verificando archivo subido...
+[2025-10-29 18:11:38] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:11:38] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:11:38] 📏 Tamaño: 916273 bytes
+[2025-10-29 18:11:38] 💾 Guardando en: ../../files/uploads/20251029_181138_69024aca70ac1_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:11:38] ✅ Archivo guardado exitosamente
+[2025-10-29 18:11:38] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:11:38] 📝 Registrando log en BD - Estado: PROCESANDO
+[2025-10-29 18:12:04] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:12:04] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:12:04] 🔍 Verificando archivo subido...
+[2025-10-29 18:12:04] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:12:04] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:12:04] 📏 Tamaño: 916273 bytes
+[2025-10-29 18:12:04] 💾 Guardando en: ../../files/uploads/20251029_181204_69024ae4db116_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:12:04] ✅ Archivo guardado exitosamente
+[2025-10-29 18:12:04] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:12:04] 📝 Registrando log en BD - Estado: PROCESANDO
+[2025-10-29 18:18:17] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:18:17] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:18:17] 📨 Método: POST
+[2025-10-29 18:18:17] 📦 POST data: | Data: {"tipo_archivo":"ASIGNACION_STOCK"}
+[2025-10-29 18:18:17] 📎 FILES data: | Data: {"archivo_excel":{"name":"Asignaci\u00f3n 202510 - MAB - RESP_ORIGINAL.xlsx","type":"application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet","tmp_name":"C:\\xampp\\tmp\\php8F11.tmp","error":0,"size":916273}}
+[2025-10-29 18:18:17] 🔍 Verificando archivo subido...
+[2025-10-29 18:18:17] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:18:17] 📄 Archivo: Asignación 202510 - MAB - RESP_ORIGINAL.xlsx | Extensión: xlsx
+[2025-10-29 18:18:17] 📏 Tamaño: 916273 bytes
+[2025-10-29 18:18:17] 💾 Guardando en: ../../files/uploads/20251029_181817_69024c5952936_Asignación 202510 - MAB - RESP_ORIGINAL.xlsx
+[2025-10-29 18:18:17] ✅ Archivo guardado exitosamente
+[2025-10-29 18:18:17] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:18:17] 📝 Registrando log en BD - Estado: PROCESANDO
+[2025-10-29 18:23:01] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:23:01] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:23:01] 📨 Método: POST
+[2025-10-29 18:23:01] 📦 POST data: | Data: {"tipo_archivo":"ASIGNACION_STOCK"}
+[2025-10-29 18:23:01] 📎 FILES data: | Data: {"archivo_excel":{"name":"Asignaci\u00f3n 202510 - MAB - RESP_ORIGINAL.xlsx","type":"application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet","tmp_name":"C:\\xampp\\tmp\\phpE6F3.tmp","error":0,"size":916273}}
+[2025-10-29 18:23:01] 🔍 Verificando archivo subido...
+[2025-10-29 18:23:01] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:23:01] 📄 Archivo: Asignación 202510 - MAB - RESP_ORIGINAL.xlsx | Extensión: xlsx
+[2025-10-29 18:23:01] 📏 Tamaño: 916273 bytes
+[2025-10-29 18:23:01] 💾 Guardando en: ../../files/uploads/20251029_182301_69024d75f2639_Asignación 202510 - MAB - RESP_ORIGINAL.xlsx
+[2025-10-29 18:23:01] ✅ Archivo guardado exitosamente
+[2025-10-29 18:23:02] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:23:02] 📝 Registrando log en BD - Estado: PROCESANDO
+[2025-10-29 18:25:52] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:25:52] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:25:52] 🔍 Verificando archivo subido...
+[2025-10-29 18:25:52] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:25:52] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:25:52] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:25:52] 💾 Guardando en: ../../files/uploads/20251029_182552_69024e20ac32a_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:25:52] ✅ Archivo guardado exitosamente
+[2025-10-29 18:25:52] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:25:52] 📝 Intentando registrar log en BD...
+[2025-10-29 18:25:52] 🔍 SQL Log: INSERT INTO Logs_Carga_Excel (tipo_archivo, nombre_archivo, nombre_original, usuario_carga, estado, registros_procesados, error_mensaje) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+[2025-10-29 18:25:52] 📋 Parámetros Log: | Data: ["ASIGNACION_STOCK","20251029_182552_69024e20ac32a_Asignaci\u00f3n 202510 - MAB.xlsx","Asignaci\u00f3n 202510 - MAB.xlsx","admin","PROCESANDO",null,null]
+[2025-10-29 18:25:52] ✅ Log registrado exitosamente
+[2025-10-29 18:25:52] 📦 Cargando librería PhpSpreadsheet...
+[2025-10-29 18:25:52] 📊 Cargando archivo Excel desde: ../../files/uploads/20251029_182552_69024e20ac32a_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:29:42] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:29:42] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:29:42] 🔍 Verificando archivo subido...
+[2025-10-29 18:29:42] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:29:42] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:29:42] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:29:42] 💾 Guardando en: ../../files/uploads/20251029_182942_69024f06602e9_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:29:42] ✅ Archivo guardado exitosamente
+[2025-10-29 18:29:42] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:29:42] 📝 Registrando log en BD...
+[2025-10-29 18:29:42] ✅ Log registrado exitosamente
+[2025-10-29 18:29:42] 📦 Verificando si existe PhpSpreadsheet...
+[2025-10-29 18:29:42] ✅ PhpSpreadsheet encontrado, cargando...
+[2025-10-29 18:29:42] 📊 Cargando archivo Excel...
+[2025-10-29 18:33:19] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:33:19] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:33:19] 🔍 Verificando archivo subido...
+[2025-10-29 18:33:19] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:33:19] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:33:19] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:33:19] 💾 Guardando en: ../../files/uploads/20251029_183319_69024fdf4d0e8_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:33:19] ✅ Archivo guardado exitosamente
+[2025-10-29 18:33:19] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:33:19] 📝 Registrando log en BD...
+[2025-10-29 18:33:19] ✅ Log registrado exitosamente
+[2025-10-29 18:33:19] 📦 Verificando si existe PhpSpreadsheet...
+[2025-10-29 18:33:19] ✅ PhpSpreadsheet encontrado, cargando...
+[2025-10-29 18:33:19] 📊 Verificando archivo Excel...
+[2025-10-29 18:33:19] ✅ Archivo verificado, intentando cargar con PhpSpreadsheet...
+[2025-10-29 18:33:19] 🔧 Método 1: Carga directa...
+[2025-10-29 18:34:29] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:34:29] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:34:29] 🔍 Verificando archivo subido...
+[2025-10-29 18:34:29] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:34:29] 📄 Archivo: Asignación 202510 - MAB - copia.xlsx | Extensión: xlsx
+[2025-10-29 18:34:29] 📏 Tamaño: 929838 bytes
+[2025-10-29 18:34:29] 💾 Guardando en: ../../files/uploads/20251029_183429_69025025f1bbb_Asignación 202510 - MAB - copia.xlsx
+[2025-10-29 18:34:29] ✅ Archivo guardado exitosamente
+[2025-10-29 18:34:29] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:34:30] 📝 Registrando log en BD...
+[2025-10-29 18:34:30] ✅ Log registrado exitosamente
+[2025-10-29 18:34:30] 📦 Verificando si existe PhpSpreadsheet...
+[2025-10-29 18:34:30] ✅ PhpSpreadsheet encontrado, cargando...
+[2025-10-29 18:34:30] 📊 Verificando archivo Excel...
+[2025-10-29 18:34:30] ✅ Archivo verificado, intentando cargar con PhpSpreadsheet...
+[2025-10-29 18:34:30] 🔧 Método 1: Carga directa...
+[2025-10-29 18:35:41] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:35:41] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:35:41] 🔍 Verificando archivo subido...
+[2025-10-29 18:35:41] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:35:41] 📄 Archivo: Asignación 202510 - MAB - copia.xlsx | Extensión: xlsx
+[2025-10-29 18:35:41] 📏 Tamaño: 929838 bytes
+[2025-10-29 18:35:41] 💾 Guardando en: ../../files/uploads/20251029_183541_6902506d07452_Asignación 202510 - MAB - copia.xlsx
+[2025-10-29 18:35:41] ✅ Archivo guardado exitosamente
+[2025-10-29 18:35:41] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:35:41] 📝 Registrando log en BD...
+[2025-10-29 18:35:41] ✅ Log registrado exitosamente
+[2025-10-29 18:35:41] 📦 Verificando si existe PhpSpreadsheet...
+[2025-10-29 18:35:41] ✅ PhpSpreadsheet encontrado, cargando...
+[2025-10-29 18:35:41] 📊 Verificando archivo Excel...
+[2025-10-29 18:35:41] ✅ Archivo verificado, intentando cargar con PhpSpreadsheet...
+[2025-10-29 18:35:41] 🔧 Método 1: Carga directa...
+[2025-10-29 18:38:38] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:38:38] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:38:38] 🔍 Verificando archivo subido...
+[2025-10-29 18:38:38] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:38:38] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:38:38] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:38:38] 💾 Guardando en: ../../files/uploads/20251029_183838_6902511ebd670_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:38:38] ✅ Archivo guardado exitosamente
+[2025-10-29 18:38:38] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:38:38] 📝 Registrando log en BD...
+[2025-10-29 18:38:38] ✅ Log registrado exitosamente
+[2025-10-29 18:38:38] 📊 SOLUCIÓN SIMPLIFICADA - Saltando lectura de Excel
+[2025-10-29 18:38:38] ⚙️ Configuración cargada para: Asignación Stock Mensual
+[2025-10-29 18:38:38] 🎯 INSERTANDO REGISTROS DE PRUEBA DIRECTAMENTE EN BD...
+[2025-10-29 18:38:38] 🔍 Ejecutando SQL 1: INSERT INTO Asignacion_Stock (rut, dv, contrato, nombre, archivo_origen, usuario_carga, periodo_proceso, fecha_carga) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+[2025-10-29 18:38:38] ❌ Error en registro 1
+[2025-10-29 18:38:38] 🔍 Ejecutando SQL 2: INSERT INTO Asignacion_Stock (rut, dv, contrato, nombre, archivo_origen, usuario_carga, periodo_proceso, fecha_carga) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+[2025-10-29 18:38:38] ❌ Error en registro 2
+[2025-10-29 18:38:38] 🔍 Ejecutando SQL 3: INSERT INTO Asignacion_Stock (rut, dv, contrato, nombre, archivo_origen, usuario_carga, periodo_proceso, fecha_carga) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+[2025-10-29 18:38:38] ❌ Error en registro 3
+[2025-10-29 18:38:38] 💥 ERROR EN PROCESAMIENTO: No se pudo insertar ningún registro en la base de datos
+[2025-10-29 18:38:38] 📊 Resultado final del procesamiento: | Data: {"success":false,"error":"No se pudo insertar ning\u00fan registro en la base de datos","log_id":1}
+[2025-10-29 18:38:38] =================== FIN SOLICITUD ===================
+
+[2025-10-29 18:41:52] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:41:52] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:41:52] 🔍 Verificando archivo subido...
+[2025-10-29 18:41:52] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:41:52] 📄 Archivo: Asignación 202510 - MAB - copia.xlsx | Extensión: xlsx
+[2025-10-29 18:41:52] 📏 Tamaño: 929838 bytes
+[2025-10-29 18:41:52] 💾 Guardando en: ../../files/uploads/20251029_184152_690251e05219b_Asignación 202510 - MAB - copia.xlsx
+[2025-10-29 18:41:52] ✅ Archivo guardado exitosamente
+[2025-10-29 18:41:52] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:41:52] 📝 Registrando log en BD...
+[2025-10-29 18:41:52] ✅ Log registrado exitosamente
+[2025-10-29 18:41:52] 📊 SOLUCIÓN SIMPLIFICADA - DIAGNÓSTICO DE BD
+[2025-10-29 18:41:52] ⚙️ Tabla objetivo: Asignacion_Stock
+[2025-10-29 18:41:52] 🔍 DIAGNÓSTICO DE TABLA: Asignacion_Stock
+[2025-10-29 18:41:52] ✅ La tabla EXISTE en INFORMATION_SCHEMA
+[2025-10-29 18:41:52] 📋 ESTRUCTURA DE LA TABLA:
+[2025-10-29 18:45:15] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:45:15] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:45:15] 🔍 Verificando archivo subido...
+[2025-10-29 18:45:15] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:45:15] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:45:16] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:45:16] 💾 Guardando en: ../../files/uploads/20251029_184516_690252ac011a8_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:45:16] ✅ Archivo guardado exitosamente
+[2025-10-29 18:45:16] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:45:16] 📝 Registrando log en BD...
+[2025-10-29 18:45:16] ✅ Log registrado exitosamente
+[2025-10-29 18:45:16] 📊 SOLUCIÓN SIMPLIFICADA - INSERT CON TODOS LOS CAMPOS OBLIGATORIOS
+[2025-10-29 18:45:16] ⚙️ Tabla objetivo: Asignacion_Stock
+[2025-10-29 18:45:16] 🎯 INSERTANDO REGISTRO CON TODOS LOS CAMPOS REQUERIDOS...
+[2025-10-29 18:45:16] 🔍 SQL Completo: INSERT INTO Asignacion_Stock (
+            periodo_proceso, fecha_proceso, periodo_castigo, 
+            rut, dv, contrato, nombre, paterno, materno,
+            fecha_castigo, saldo_generado, clasificacion_bienes, canal,
+            archivo_origen, usuario_carga
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+[2025-10-29 18:45:16] 📋 Parámetros: | Data: ["202510","2025-10-29","202510","12345678","9","TEST_CONTRATO_1761759916","USUARIO PRUEBA COMPLETO","APELLIDO_PATERNO","APELLIDO_MATERNO","2025-10-01",100000,"CLASIFICACION_TEST","CANAL_TEST","Asignaci\u00f3n 202510 - MAB.xlsx","admin"]
+[2025-10-29 18:45:16] ✅ ✅ ✅ REGISTRO INSERTADO EXITOSAMENTE CON TODOS LOS CAMPOS OBLIGATORIOS
+[2025-10-29 18:45:16] 🎉 PROCESAMIENTO COMPLETADO - Registros: 1
+[2025-10-29 18:45:16] 📊 Resultado final del procesamiento: | Data: {"success":true,"registros_procesados":1,"errores":[],"log_id":1,"mensaje":"Archivo procesado correctamente. Se insert\u00f3 1 registro de prueba con todos los campos obligatorios."}
+[2025-10-29 18:45:16] =================== FIN SOLICITUD ===================
+
+[2025-10-29 18:52:01] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:52:01] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:52:01] 🔍 Verificando archivo subido...
+[2025-10-29 18:52:01] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:52:01] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:52:01] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:52:01] 💾 Guardando en: ../../files/uploads/20251029_185201_690254416b3b4_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:52:01] ✅ Archivo guardado exitosamente
+[2025-10-29 18:52:01] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:52:01] 📝 Registrando log en BD...
+[2025-10-29 18:52:01] ✅ Log registrado exitosamente
+[2025-10-29 18:52:01] 📊 PROCESANDO ARCHIVO - VERSIÓN SIMPLIFICADA
+[2025-10-29 18:52:01] ⚙️ Tabla objetivo: Asignacion_Stock
+[2025-10-29 18:52:01] 🎯 INSERTANDO REGISTRO DE PRUEBA...
+[2025-10-29 18:52:01] 🔍 Ejecutando SQL: INSERT INTO Asignacion_Stock (
+                periodo_proceso, fecha_proceso, periodo_castigo, 
+                rut, dv, contrato, nombre, paterno, materno,
+                fecha_castigo, saldo_generado, clasificacion_bienes, canal,
+                archivo_origen, usuario_carga
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+[2025-10-29 18:52:01] ✅ ✅ ✅ REGISTRO INSERTADO EXITOSAMENTE
+[2025-10-29 18:52:01] ✅ Stored procedure ejecutado
+[2025-10-29 18:52:01] 🔄 Actualizando log ID 1 - Estado: COMPLETADO
+[2025-10-29 18:52:01] ✅ Log actualizado exitosamente
+[2025-10-29 18:52:01] 🎉 PROCESAMIENTO COMPLETADO - Registros: 1
+[2025-10-29 18:52:01] 📊 Resultado final del procesamiento: | Data: {"success":true,"registros_procesados":1,"errores":[],"log_id":1,"mensaje":"\u2705 Archivo procesado correctamente. Se insert\u00f3 1 registro de prueba en el sistema."}
+[2025-10-29 18:52:01] =================== FIN SOLICITUD ===================
+
+[2025-10-29 18:53:40] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:53:40] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:53:40] 🔍 Verificando archivo subido...
+[2025-10-29 18:53:40] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:53:40] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:53:40] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:53:40] 💾 Guardando en: ../../files/uploads/20251029_185340_690254a4d15cb_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:53:40] ✅ Archivo guardado exitosamente
+[2025-10-29 18:53:40] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:53:40] 📝 Registrando log en BD...
+[2025-10-29 18:53:40] ✅ Log registrado exitosamente
+[2025-10-29 18:53:40] 📊 PROCESANDO ARCHIVO - VERSIÓN SIMPLIFICADA
+[2025-10-29 18:53:40] ⚙️ Tabla objetivo: Asignacion_Stock
+[2025-10-29 18:53:40] 🎯 INSERTANDO REGISTRO DE PRUEBA...
+[2025-10-29 18:53:40] 🔍 Ejecutando SQL: INSERT INTO Asignacion_Stock (
+                periodo_proceso, fecha_proceso, periodo_castigo, 
+                rut, dv, contrato, nombre, paterno, materno,
+                fecha_castigo, saldo_generado, clasificacion_bienes, canal,
+                archivo_origen, usuario_carga
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+[2025-10-29 18:53:40] ✅ ✅ ✅ REGISTRO INSERTADO EXITOSAMENTE
+[2025-10-29 18:53:40] ✅ Stored procedure ejecutado
+[2025-10-29 18:53:40] 🔄 Actualizando log ID 1 - Estado: COMPLETADO
+[2025-10-29 18:53:40] ✅ Log actualizado exitosamente
+[2025-10-29 18:53:40] 🎉 PROCESAMIENTO COMPLETADO - Registros: 1
+[2025-10-29 18:53:40] 📊 Resultado final del procesamiento: | Data: {"success":true,"registros_procesados":1,"errores":[],"log_id":1,"mensaje":"\u2705 Archivo procesado correctamente. Se insert\u00f3 1 registro de prueba en el sistema."}
+[2025-10-29 18:53:40] =================== FIN SOLICITUD ===================
+
+[2025-10-29 18:59:50] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 18:59:50] =================== NUEVA SOLICITUD ===================
+[2025-10-29 18:59:50] 🔍 Verificando archivo subido...
+[2025-10-29 18:59:50] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 18:59:50] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 18:59:50] 📏 Tamaño: 926608 bytes
+[2025-10-29 18:59:50] 💾 Guardando en: ../../files/uploads/20251029_185950_6902561671510_Asignación 202510 - MAB.xlsx
+[2025-10-29 18:59:50] ✅ Archivo guardado exitosamente
+[2025-10-29 18:59:50] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 18:59:50] 📝 Registrando log en BD...
+[2025-10-29 18:59:50] ✅ Log registrado exitosamente
+[2025-10-29 18:59:50] 📦 Cargando PhpSpreadsheet...
+[2025-10-29 18:59:50] 📊 Cargando archivo Excel...
+[2025-10-29 20:05:13] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 20:05:13] =================== NUEVA SOLICITUD ===================
+[2025-10-29 20:05:13] 🔍 Verificando archivo subido...
+[2025-10-29 20:05:13] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 20:05:13] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 20:05:13] 📏 Tamaño: 926608 bytes
+[2025-10-29 20:05:13] 💾 Guardando en: ../../files/uploads/20251029_200513_6902656984701_Asignación 202510 - MAB.xlsx
+[2025-10-29 20:05:13] ✅ Archivo guardado exitosamente
+[2025-10-29 20:05:13] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 20:05:13] 📝 Registrando log en BD...
+[2025-10-29 20:05:13] ✅ Log registrado exitosamente
+[2025-10-29 20:05:13] 📦 Cargando PhpSpreadsheet...
+[2025-10-29 20:05:13] 📊 Cargando archivo Excel...
+[2025-10-29 20:06:45] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-10-29 20:06:45] =================== NUEVA SOLICITUD ===================
+[2025-10-29 20:06:45] 🔍 Verificando archivo subido...
+[2025-10-29 20:06:45] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-10-29 20:06:45] 📄 Archivo: Asignación 202510 - MAB.xlsx | Extensión: xlsx
+[2025-10-29 20:06:45] 📏 Tamaño: 926608 bytes
+[2025-10-29 20:06:45] 💾 Guardando en: ../../files/uploads/20251029_200645_690265c5c4af8_Asignación 202510 - MAB.xlsx
+[2025-10-29 20:06:45] ✅ Archivo guardado exitosamente
+[2025-10-29 20:06:45] 🚀 INICIANDO PROCESAMIENTO: ASIGNACION_STOCK
+[2025-10-29 20:06:45] 📝 Registrando log en BD...
+[2025-10-29 20:06:45] ✅ Log registrado exitosamente
+[2025-10-29 20:06:45] 📦 INTENTANDO CARGAR PhpSpreadsheet...
+[2025-10-29 20:06:45] 📊 Cargando archivo Excel con PhpSpreadsheet...

@@ -101,6 +101,9 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         .archivo-type.judicial {
             border-left-color: #ffc107;
         }
+        .progress-container {
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -223,6 +226,17 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                         </div>
                                     </div>
 
+                                    <!-- Barra de progreso -->
+                                    <div class="progress-container" id="progressContainer" style="display: none;">
+                                        <div class="progress" style="height: 25px;">
+                                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                                 role="progressbar" style="width: 0%;" 
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                <span id="progressText">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Información según tipo de archivo -->
                                     <div id="infoAsignacion" class="archivo-type stock mt-3" style="display: none;">
                                         <h6><i class="bi bi-info-circle me-2"></i>Información Asignación Stock:</h6>
@@ -339,6 +353,9 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         const filePreview = document.getElementById('filePreview');
         const tipoArchivo = document.getElementById('tipoArchivo');
         const submitBtn = document.getElementById('submitBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
 
         // Mostrar/ocultar información según tipo de archivo
         tipoArchivo.addEventListener('change', function() {
@@ -430,27 +447,125 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Validación antes de enviar
+        // JavaScript para manejar la carga de archivos via AJAX
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            const tipo = document.getElementById('tipoArchivo').value;
-            const archivo = document.getElementById('fileInput').files[0];
-            
-            if (!tipo) {
-                e.preventDefault();
-                alert('Por favor selecciona el tipo de archivo');
-                return false;
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const originalText = submitBtn.innerHTML;
+
+            // Validaciones básicas
+            if (!formData.get('tipo_archivo')) {
+                showAlert('Por favor seleccione el tipo de archivo', 'warning');
+                return;
             }
             
-            if (!archivo) {
-                e.preventDefault();
-                alert('Por favor selecciona un archivo Excel');
-                return false;
+            if (!formData.get('archivo_excel').name) {
+                showAlert('Por favor seleccione un archivo Excel', 'warning');
+                return;
             }
-            
-            // Mostrar loading
-            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+
+            // Preparar UI para procesamiento
             submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+            progressContainer.style.display = 'block';
+            
+            // Simular progreso
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 85) progress = 85;
+                updateProgress(progress, 'Procesando archivo...');
+            }, 300);
+
+            // Enviar con Fetch API
+            fetch('procesar_excel.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                clearInterval(progressInterval);
+                
+                if (data.success) {
+                    updateProgress(100, '¡Completado!');
+                    
+                    setTimeout(() => {
+                        showAlert('✅ Carga completada exitosamente. Registros procesados: ' + data.registros_procesados, 'success');
+                        
+                        // Resetear formulario después de 2 segundos
+                        setTimeout(() => {
+                            resetForm();
+                        }, 2000);
+                        
+                    }, 500);
+                    
+                } else {
+                    updateProgress(100, 'Error!');
+                    setTimeout(() => {
+                        showAlert('❌ Error en la carga: ' + data.error, 'danger');
+                    }, 500);
+                }
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                updateProgress(100, 'Error!');
+                setTimeout(() => {
+                    showAlert('❌ Error de conexión: ' + error.message, 'danger');
+                }, 500);
+            })
+            .finally(() => {
+                // Restaurar botón después de un tiempo
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }, 2000);
+            });
+
+            function updateProgress(percent, text) {
+                progressBar.style.width = percent + '%';
+                progressBar.setAttribute('aria-valuenow', percent);
+                progressText.textContent = text;
+            }
         });
+
+        function showAlert(mensaje, tipo = 'info') {
+            // Crear alerta
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo} alert-dismissible fade show mt-3`;
+            alertDiv.innerHTML = `
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insertar después del formulario
+            const cardBody = document.querySelector('.card-body');
+            cardBody.insertBefore(alertDiv, document.getElementById('progressContainer'));
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('fileInfo').style.display = 'none';
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+            
+            // Ocultar paneles de info
+            document.getElementById('infoAsignacion').style.display = 'none';
+            document.getElementById('infoJudicialBase').style.display = 'none';
+            document.getElementById('infoJudicialExcluidos').style.display = 'none';
+        }
 
         // Cargar estadísticas (simuladas por ahora)
         function cargarEstadisticas() {
