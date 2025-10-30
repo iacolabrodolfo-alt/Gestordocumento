@@ -22,14 +22,55 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 // =============================================
-// SISTEMA DE LOGGING
+// SISTEMA DE LOGGING OPTIMIZADO
 // =============================================
 function debug_log($message, $data = null) {
+    // Solo loguear errores y eventos importantes
+    $log_important = [
+        'ERROR' => true,
+        'EXCEPCIÓN' => true,
+        'INICIANDO' => true,
+        'FINALIZANDO' => true,
+        'PROCESAMIENTO' => true,
+        'RESUMEN' => true,
+        'STORED PROCEDURE' => true,
+        'VALIDACIÓN' => true,
+        'SOLICITUD' => true,
+        'ARCHIVO' => true,
+        'HEADERS' => true,
+        'TEMPORAL' => true,
+        'PROGRESO' => true,
+        'REGISTROS' => true,
+        'FALTANTES' => true,
+        'OMITIDA' => true,
+        'CONVERSIÓN FALLIDA' => true
+    ];
+    
+    $is_important = false;
+    foreach (array_keys($log_important) as $keyword) {
+        if (stripos($message, $keyword) !== false) {
+            $is_important = true;
+            break;
+        }
+    }
+    
+    // Solo loguear conversiones exitosas cada 500 filas
+    static $conversion_counter = 0;
+    $is_conversion_success = strpos($message, '✅ Valor convertido') !== false || 
+                            strpos($message, '✅ Fecha convertida') !== false;
+    
+    if ($is_conversion_success) {
+        $conversion_counter++;
+        if ($conversion_counter % 500 !== 0) {
+            return;
+        }
+    }
+    
     $log_file = __DIR__ . '/../../debug_log.txt';
     $timestamp = date('Y-m-d H:i:s');
     $log_message = "[{$timestamp}] {$message}";
     
-    if ($data !== null) {
+    if ($data !== null && $is_important) {
         if (is_array($data)) {
             $log_message .= " | Data: " . json_encode($data);
         } else {
@@ -39,8 +80,11 @@ function debug_log($message, $data = null) {
     
     $log_message .= "\n";
     
-    if (!file_exists($log_file)) {
-        file_put_contents($log_file, "=== DEBUG LOG INICIADO ===\n");
+    // Limitar tamaño del archivo de log (1MB máximo)
+    if (file_exists($log_file) && filesize($log_file) > 1024 * 1024) {
+        $lines = file($log_file);
+        $keep_lines = array_slice($lines, -1000); // Mantener últimas 1000 líneas
+        file_put_contents($log_file, implode('', $keep_lines));
     }
     
     file_put_contents($log_file, $log_message, FILE_APPEND | LOCK_EX);
@@ -114,37 +158,21 @@ function actualizarLog($log_id, $estado, $registros = null, $error = null) {
     }
 }
 
-function debugMapeoColumnas($headers, $fila_ejemplo) {
-    debug_log("🔍 DEBUG MApeo de Columnas:");
-    debug_log("📋 Headers originales:", $headers);
+function registrarErrorCarga($log_carga_id, $contrato, $rut, $mensaje_error, $datos_fila = null) {
+    global $db;
     
-    $headers_limpios = array_map(function($header) {
-        return strtoupper(trim($header));
-    }, $headers);
-    
-    debug_log("📋 Headers limpios:", $headers_limpios);
-    
-    // Verificar columnas requeridas
-    $columnas_requeridas = ['PERIODO_PROCESO', 'RUT', 'DV', 'CONTRATO', 'NOMBRE', 'FECHA_CASTIGO', 'SALDO_GENERADO', 'CLASIFICACION_BIENES', 'CANAL'];
-    
-    foreach ($columnas_requeridas as $columna) {
-        $encontrado = in_array($columna, $headers_limpios);
-        debug_log("🔍 Columna '$columna': " . ($encontrado ? 'ENCONTRADA' : 'NO ENCONTRADA'));
+    try {
+        $sql = "INSERT INTO Logs_Errores_Carga (log_carga_id, contrato, rut, mensaje_error, datos_fila) 
+                VALUES (?, ?, ?, ?, ?)";
         
-        if ($encontrado) {
-            $indice = array_search($columna, $headers_limpios);
-            $valor = $fila_ejemplo[$indice] ?? 'N/A';
-            debug_log("   📍 Índice: $indice, Valor: '$valor'");
-        }
-    }
-    
-    // Mapeo detallado
-    debug_log("🔍 Mapeo detallado por índice:");
-    foreach ($headers as $indice => $header) {
-        $header_limpio = strtoupper(trim($header));
-        $columna_bd = mapearColumnaBD($header_limpio);
-        $valor = $fila_ejemplo[$indice] ?? 'N/A';
-        debug_log("   [$indice] '$header' -> '$header_limpio' -> '$columna_bd' = '$valor'");
+        $datos_json = $datos_fila ? json_encode($datos_fila) : null;
+        $params = [$log_carga_id, $contrato, $rut, $mensaje_error, $datos_json];
+        $result = $db->secure_query($sql, $params);
+        
+        return $result !== false;
+    } catch (Exception $e) {
+        debug_log("💥 Error registrando error en BD: " . $e->getMessage());
+        return false;
     }
 }
 
@@ -200,35 +228,65 @@ function mapearColumnaBD($columna_excel) {
     return $mapeo[$columna_excel] ?? null;
 }
 
-function convertirFechaExcel($valor) {
-    if (empty($valor)) return null;
+function convertirFechaExcel($valor, $campo = '') {
+    if (empty($valor) || $valor === 'NULL' || $valor === 'null') {
+        return null;
+    }
     
-    // Si es numérico (fecha Excel)
+    // Si es numérico (fecha Excel - formato serial)
     if (is_numeric($valor)) {
-        try {
-            $fecha = Date::excelToDateTimeObject($valor);
-            return $fecha->format('Y-m-d');
-        } catch (Exception $e) {
-            debug_log("⚠️ Error convirtiendo fecha Excel: " . $e->getMessage());
+        // Verificar si es una fecha Excel válida (generalmente > 25569 que es 01/01/1970)
+        if ($valor > 25569) {
+            try {
+                $fecha = Date::excelToDateTimeObject($valor);
+                $fecha_formateada = $fecha->format('Y-m-d');
+                debug_log("✅ Fecha Excel convertida: $valor -> $fecha_formateada (Campo: $campo)");
+                return $fecha_formateada;
+            } catch (Exception $e) {
+                debug_log("⚠️ Error convirtiendo fecha Excel '$valor' (Campo: $campo): " . $e->getMessage());
+                return null;
+            }
+        } else {
+            // Si es un número pequeño, probablemente no es una fecha válida
+            debug_log("⚠️ Valor numérico pequeño, ignorando como fecha: $valor (Campo: $campo)");
+            return null;
         }
     }
     
     // Si es string con formato fecha
     if (is_string($valor)) {
-        // Formato mm/dd/yyyy (inglés)
+        $valor = trim($valor);
+        
+        // Formato mm/dd/yyyy (inglés) - común en Excel
         if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $valor)) {
             $fecha = DateTime::createFromFormat('m/d/Y', $valor);
-            if ($fecha) return $fecha->format('Y-m-d');
+            if ($fecha) {
+                $fecha_formateada = $fecha->format('Y-m-d');
+                debug_log("✅ Fecha string convertida: $valor -> $fecha_formateada (Campo: $campo)");
+                return $fecha_formateada;
+            }
         }
         
         // Formato dd-mm-yyyy
         if (preg_match('/^\d{1,2}-\d{1,2}-\d{4}$/', $valor)) {
             $fecha = DateTime::createFromFormat('d-m-Y', $valor);
-            if ($fecha) return $fecha->format('Y-m-d');
+            if ($fecha) {
+                $fecha_formateada = $fecha->format('Y-m-d');
+                debug_log("✅ Fecha string convertida: $valor -> $fecha_formateada (Campo: $campo)");
+                return $fecha_formateada;
+            }
         }
+        
+        // Formato yyyy-mm-dd (ya está bien)
+        if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $valor)) {
+            debug_log("✅ Fecha ya en formato correcto: $valor (Campo: $campo)");
+            return $valor;
+        }
+        
+        debug_log("⚠️ Formato de fecha no reconocido: '$valor' (Campo: $campo)");
     }
     
-    return $valor; // Devolver original si no se puede convertir
+    return null; // Devolver null si no se puede convertir
 }
 
 function limpiarValor($valor, $tipo_campo = 'string') {
@@ -238,26 +296,48 @@ function limpiarValor($valor, $tipo_campo = 'string') {
     
     $valor = trim($valor);
     
-    // Manejar números/monedas
-    if ($tipo_campo === 'decimal' || $tipo_campo === 'money') {
+    // 🔥 CORRECCIÓN: Manejar campos numéricos con comas como separador de miles
+    if ($tipo_campo === 'int' || $tipo_campo === 'decimal' || $tipo_campo === 'money') {
+        // Si es string, remover comas, espacios y símbolos de moneda
         if (is_string($valor)) {
-            // Remover símbolos de moneda y espacios
-            $valor = str_replace(['$', ' ', ','], '', $valor);
-            // Convertir a float
-            if (is_numeric($valor)) {
+            $valor_limpio = str_replace([',', ' ', '$', 'CLP', 'USD'], '', $valor);
+            
+            // Si después de limpiar queda vacío, retornar null
+            if ($valor_limpio === '') {
+                debug_log("⚠️ Valor numérico vacío después de limpiar: '$valor'");
+                return null;
+            }
+            
+            // Verificar si es numérico después de limpiar
+            if (is_numeric($valor_limpio)) {
+                if ($tipo_campo === 'int') {
+                    $valor_final = (int)$valor_limpio;
+                    debug_log("✅ Valor convertido a INT: '$valor' -> $valor_final");
+                    return $valor_final;
+                } else {
+                    $valor_final = (float)$valor_limpio;
+                    debug_log("✅ Valor convertido a DECIMAL: '$valor' -> $valor_final");
+                    return $valor_final;
+                }
+            } else {
+                // 🔥 NUEVO: Log para debugging de valores problemáticos
+                debug_log("❌ Valor no numérico después de limpiar: '$valor' -> '$valor_limpio' (Tipo: $tipo_campo)");
+                return null;
+            }
+        }
+        
+        // Si ya es numérico
+        if (is_numeric($valor)) {
+            if ($tipo_campo === 'int') {
+                return (int)$valor;
+            } else {
                 return (float)$valor;
             }
         }
-        if (is_numeric($valor)) {
-            return (float)$valor;
-        }
-    }
-    
-    // Manejar enteros
-    if ($tipo_campo === 'int') {
-        if (is_numeric($valor)) {
-            return (int)$valor;
-        }
+        
+        // Si no es numérico después de todos los intentos
+        debug_log("❌ Valor no convertible a numérico: '$valor' (Tipo: $tipo_campo)");
+        return null;
     }
     
     return $valor;
@@ -282,7 +362,30 @@ function obtenerTipoCampo($columna_bd) {
         'monto_pago' => 'decimal',
         'monto_a_pagar' => 'decimal',
         'descuento' => 'decimal',
-        'dias_mora' => 'int'
+        'dias_mora' => 'int', // 🔥 ESTE ES EL CAMPO PROBLEMÁTICO - AHORA CORREGIDO
+        'telefono1' => 'string',
+        'telefono2' => 'string',
+        'telefono3' => 'string',
+        'telefono4' => 'string',
+        'telefono5' => 'string',
+        'correo1' => 'string',
+        'correo2' => 'string',
+        'correo3' => 'string',
+        'correo4' => 'string',
+        'correo5' => 'string',
+        'direccion' => 'string',
+        'numeracion_dir' => 'string',
+        'resto' => 'string',
+        'region' => 'string',
+        'comuna' => 'string',
+        'ciudad' => 'string',
+        'abogado' => 'string',
+        'zona' => 'string',
+        'fecha_vencimiento' => 'date',
+        'fecha_susc' => 'date',
+        'fecha_asignacion' => 'date',
+        'tipo_cartera' => 'string',
+        'tipo_campana' => 'string'
     ];
     
     return $tipos[$columna_bd] ?? 'string';
@@ -317,11 +420,6 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
         // Obtener headers (primera fila)
         $headers = $data[0];
         debug_log("📋 Headers encontrados:", $headers);
-        
-        // DEBUG: Analizar mapeo de columnas con la primera fila de datos
-        if (count($data) > 1) {
-            debugMapeoColumnas($headers, $data[1]);
-        }
         
         // Validar headers requeridos
         $config = $TIPOS_ARCHIVO[$tipo_archivo];
@@ -368,10 +466,20 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
             $fila_procesada = procesarFilaParaTemporal($fila, $headers, $nombre_original, $usuario);
             
             if ($fila_procesada) {
-                if (insertarFilaTemporal($config['tabla_temporal'], $fila_procesada)) {
+                $resultado = insertarFilaTemporal($config['tabla_temporal'], $fila_procesada, $log_id);
+                
+                if ($resultado === true) {
                     $filas_procesadas++;
                 } else {
                     $filas_con_error++;
+                    // Registrar error específico
+                    registrarErrorCarga(
+                        $log_id, 
+                        $fila_procesada['contrato'] ?? 'N/A', 
+                        $fila_procesada['rut'] ?? 'N/A', 
+                        $resultado, // mensaje de error
+                        $fila_procesada
+                    );
                 }
             } else {
                 $filas_con_error++;
@@ -457,18 +565,6 @@ function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
     $valores['archivo_origen'] = $archivo_origen;
     $valores['usuario_carga'] = $usuario;
     
-    // DEBUG: Mostrar primera fila completa
-    static $debug_fila = true;
-    if ($debug_fila) {
-        debug_log("🔍 DEBUG Primera fila completa:");
-        foreach ($headers as $index => $header) {
-            $header_limpio = strtoupper(trim($header));
-            $valor = $fila[$index] ?? 'N/A';
-            debug_log("   [$index] '$header' ('$header_limpio') = '$valor'");
-        }
-        $debug_fila = false;
-    }
-    
     // Mapear valores del Excel
     foreach ($headers as $index => $header) {
         if (isset($fila[$index])) {
@@ -477,14 +573,9 @@ function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
                 $tipo_campo = obtenerTipoCampo($columna_bd);
                 
                 if ($tipo_campo === 'date') {
-                    $valores[$columna_bd] = convertirFechaExcel($fila[$index]);
+                    $valores[$columna_bd] = convertirFechaExcel($fila[$index], $columna_bd);
                 } else {
                     $valores[$columna_bd] = limpiarValor($fila[$index], $tipo_campo);
-                }
-                
-                // DEBUG para campos requeridos
-                if (in_array($columna_bd, ['dv', 'contrato'])) {
-                    debug_log("🔍 Campo $columna_bd: '" . $valores[$columna_bd] . "'");
                 }
             }
         }
@@ -508,7 +599,7 @@ function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
     return $valores;
 }
 
-function insertarFilaTemporal($tabla_temporal, $fila_procesada) {
+function insertarFilaTemporal($tabla_temporal, $fila_procesada, $log_id) {
     global $db;
     
     try {
@@ -524,13 +615,34 @@ function insertarFilaTemporal($tabla_temporal, $fila_procesada) {
         if ($result) {
             return true;
         } else {
-            debug_log("❌ Error insertando fila en temporal");
-            return false;
+            // OBTENER DETALLES DEL ERROR SQL
+            $errors = sqlsrv_errors();
+            $error_msg = "Error SQL desconocido";
+            if ($errors) {
+                $error_msg = $errors[0]['message'];
+                
+                // Detectar tipos específicos de errores
+                if (strpos($error_msg, 'String or binary data would be truncated') !== false) {
+                    $error_msg = "DATOS DEMASIADO LARGOS: " . $error_msg;
+                } elseif (strpos($error_msg, 'Conversion failed') !== false) {
+                    $error_msg = "ERROR DE CONVERSIÓN DE DATOS: " . $error_msg;
+                } elseif (strpos($error_msg, 'Violation of PRIMARY KEY') !== false) {
+                    $error_msg = "DUPLICADO: " . $error_msg;
+                }
+            }
+            
+            debug_log("❌ Error insertando fila en temporal: " . $error_msg);
+            debug_log("   📋 Contrato: " . ($fila_procesada['contrato'] ?? 'N/A'));
+            debug_log("   📋 RUT: " . ($fila_procesada['rut'] ?? 'N/A'));
+            
+            return $error_msg; // Devolver mensaje de error específico
         }
         
     } catch (Exception $e) {
-        debug_log("💥 Excepción insertando fila: " . $e->getMessage());
-        return false;
+        $error_msg = "EXCEPCIÓN: " . $e->getMessage();
+        debug_log("💥 Excepción insertando fila: " . $error_msg);
+        debug_log("   📋 Contrato: " . ($fila_procesada['contrato'] ?? 'N/A'));
+        return $error_msg;
     }
 }
 
