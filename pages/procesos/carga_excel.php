@@ -104,6 +104,12 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         .progress-container {
             margin-top: 15px;
         }
+        .stats-card {
+            transition: transform 0.2s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -235,6 +241,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                                 <span id="progressText">0%</span>
                                             </div>
                                         </div>
+                                        <div id="progressDetails" class="mt-2 small text-muted text-center"></div>
                                     </div>
 
                                     <!-- Información según tipo de archivo -->
@@ -243,6 +250,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                         <ul class="small mb-0">
                                             <li>Archivo: <strong>Asignacion 202510 - MAB.xlsx</strong> (formato mensual)</li>
                                             <li>Estructura: PERIODO_PROCESO, RUT, CONTRATO, NOMBRE, SALDO, etc.</li>
+                                            <li>Columnas requeridas: PERIODO_PROCESO, RUT, DV, CONTRATO, NOMBRE, FECHA_CASTIGO, SALDO_GENERADO, CLASIFICACION_BIENES, CANAL</li>
                                             <li>Periodo se detecta automáticamente del nombre del archivo</li>
                                         </ul>
                                     </div>
@@ -285,17 +293,31 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                             <div class="card-body">
                                 <div class="row text-center">
                                     <div class="col-6 mb-3">
-                                        <div class="border rounded p-2">
+                                        <div class="border rounded p-2 stats-card">
                                             <i class="bi bi-file-earmark-spreadsheet text-primary display-6"></i>
                                             <h5 class="mt-2" id="statsArchivos">0</h5>
                                             <small>Archivos Cargados</small>
                                         </div>
                                     </div>
                                     <div class="col-6 mb-3">
-                                        <div class="border rounded p-2">
+                                        <div class="border rounded p-2 stats-card">
                                             <i class="bi bi-database text-success display-6"></i>
                                             <h5 class="mt-2" id="statsRegistros">0</h5>
                                             <small>Registros Totales</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2 stats-card">
+                                            <i class="bi bi-check-circle text-info display-6"></i>
+                                            <h5 class="mt-2" id="statsExitosos">0</h5>
+                                            <small>Cargas Exitosas</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2 stats-card">
+                                            <i class="bi bi-exclamation-triangle text-warning display-6"></i>
+                                            <h5 class="mt-2" id="statsErrores">0</h5>
+                                            <small>Con Errores</small>
                                         </div>
                                     </div>
                                 </div>
@@ -309,10 +331,11 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                     <i class="bi bi-clock-history me-2"></i>Últimas Cargas
                                 </h5>
                             </div>
-                            <div class="card-body">
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item bg-transparent">
-                                        <small class="text-muted">No hay cargas recientes</small>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush" id="ultimasCargas">
+                                    <div class="list-group-item bg-transparent text-center py-3">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                        <small class="text-muted">Cargando...</small>
                                     </div>
                                 </div>
                             </div>
@@ -329,6 +352,13 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                 <div class="mb-3">
                                     <h6>Asignación Stock:</h6>
                                     <small class="text-muted">Asignacion YYYYMM - MAB.xlsx</small>
+                                    <div class="mt-1">
+                                        <span class="badge bg-success">PERIODO_PROCESO</span>
+                                        <span class="badge bg-success">RUT</span>
+                                        <span class="badge bg-success">CONTRATO</span>
+                                        <span class="badge bg-success">NOMBRE</span>
+                                        <span class="badge bg-success">SALDO_GENERADO</span>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <h6>Judicial:</h6>
@@ -356,6 +386,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
+        const progressDetails = document.getElementById('progressDetails');
 
         // Mostrar/ocultar información según tipo de archivo
         tipoArchivo.addEventListener('change', function() {
@@ -433,6 +464,9 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                     <div class="col-6">
                         <strong>Extensión:</strong> ${file.name.split('.').pop().toUpperCase()}
                     </div>
+                    <div class="col-12 mt-1">
+                        <strong>Modificación:</strong> ${new Date(file.lastModified).toLocaleString()}
+                    </div>
                 </div>
             `;
             
@@ -469,13 +503,14 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
             progressContainer.style.display = 'block';
+            progressDetails.innerHTML = 'Iniciando procesamiento...';
             
             // Simular progreso
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 85) progress = 85;
-                updateProgress(progress, 'Procesando archivo...');
+                progress += Math.random() * 10;
+                if (progress > 80) progress = 80;
+                updateProgress(progress, 'Leyendo archivo Excel...');
             }, 300);
 
             // Enviar con Fetch API
@@ -494,27 +529,37 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                 
                 if (data.success) {
                     updateProgress(100, '¡Completado!');
+                    progressDetails.innerHTML = `<span class="text-success">✅ ${data.registros_procesados} registros procesados exitosamente</span>`;
                     
                     setTimeout(() => {
-                        showAlert('✅ Carga completada exitosamente. Registros procesados: ' + data.registros_procesados, 'success');
+                        let mensajeExito = '✅ ' + data.mensaje;
+                        if (data.filas_con_error > 0) {
+                            mensajeExito += ` <span class="text-warning">(${data.filas_con_error} filas con error)</span>`;
+                        }
+                        showAlert(mensajeExito, 'success');
                         
-                        // Resetear formulario después de 2 segundos
+                        // Resetear formulario después de 3 segundos
                         setTimeout(() => {
                             resetForm();
-                        }, 2000);
+                            cargarEstadisticas();
+                            cargarUltimasCargas();
+                        }, 3000);
                         
-                    }, 500);
+                    }, 1000);
                     
                 } else {
                     updateProgress(100, 'Error!');
+                    progressDetails.innerHTML = `<span class="text-danger">❌ Error en el procesamiento</span>`;
                     setTimeout(() => {
-                        showAlert('❌ Error en la carga: ' + data.error, 'danger');
+                        let mensajeError = '❌ ' + (data.error || data.mensaje || 'Error desconocido');
+                        showAlert(mensajeError, 'danger');
                     }, 500);
                 }
             })
             .catch(error => {
                 clearInterval(progressInterval);
                 updateProgress(100, 'Error!');
+                progressDetails.innerHTML = `<span class="text-danger">❌ Error de conexión</span>`;
                 setTimeout(() => {
                     showAlert('❌ Error de conexión: ' + error.message, 'danger');
                 }, 500);
@@ -531,6 +576,14 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                 progressBar.style.width = percent + '%';
                 progressBar.setAttribute('aria-valuenow', percent);
                 progressText.textContent = text;
+                
+                if (percent < 30) {
+                    progressDetails.innerHTML = 'Validando archivo...';
+                } else if (percent < 60) {
+                    progressDetails.innerHTML = 'Leyendo datos del Excel...';
+                } else if (percent < 90) {
+                    progressDetails.innerHTML = 'Insertando registros en la base de datos...';
+                }
             }
         });
 
@@ -547,12 +600,12 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
             const cardBody = document.querySelector('.card-body');
             cardBody.insertBefore(alertDiv, document.getElementById('progressContainer'));
             
-            // Auto-remover después de 5 segundos
+            // Auto-remover después de 8 segundos
             setTimeout(() => {
                 if (alertDiv.parentNode) {
                     alertDiv.remove();
                 }
-            }, 5000);
+            }, 8000);
         }
 
         function resetForm() {
@@ -560,6 +613,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
             document.getElementById('fileInfo').style.display = 'none';
             progressContainer.style.display = 'none';
             progressBar.style.width = '0%';
+            progressDetails.innerHTML = '';
             
             // Ocultar paneles de info
             document.getElementById('infoAsignacion').style.display = 'none';
@@ -567,15 +621,72 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
             document.getElementById('infoJudicialExcluidos').style.display = 'none';
         }
 
-        // Cargar estadísticas (simuladas por ahora)
-        function cargarEstadisticas() {
-            document.getElementById('statsArchivos').textContent = '0';
-            document.getElementById('statsRegistros').textContent = '0';
+        // Cargar estadísticas
+        async function cargarEstadisticas() {
+            try {
+                const response = await fetch('obtener_estadisticas.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('statsArchivos').textContent = data.total_archivos;
+                    document.getElementById('statsRegistros').textContent = data.total_registros;
+                    document.getElementById('statsExitosos').textContent = data.cargas_exitosas;
+                    document.getElementById('statsErrores').textContent = data.cargas_con_errores;
+                }
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+
+        // Cargar últimas cargas
+        async function cargarUltimasCargas() {
+            try {
+                const response = await fetch('obtener_ultimas_cargas.php');
+                const data = await response.json();
+                
+                const container = document.getElementById('ultimasCargas');
+                
+                if (data.success && data.cargas.length > 0) {
+                    container.innerHTML = '';
+                    data.cargas.forEach(carga => {
+                        const item = document.createElement('div');
+                        item.className = 'list-group-item bg-transparent';
+                        item.innerHTML = `
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${carga.tipo_archivo}</h6>
+                                <small class="text-${carga.estado === 'COMPLETADO' ? 'success' : carga.estado === 'ERROR' ? 'danger' : 'warning'}">
+                                    ${carga.estado}
+                                </small>
+                            </div>
+                            <p class="mb-1 small">${carga.nombre_original}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">${carga.fecha_carga}</small>
+                                <span class="badge bg-${carga.registros_procesados > 0 ? 'success' : 'secondary'}">
+                                    ${carga.registros_procesados || 0} reg.
+                                </span>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<div class="list-group-item bg-transparent text-center py-3"><small class="text-muted">No hay cargas recientes</small></div>';
+                }
+            } catch (error) {
+                console.error('Error cargando últimas cargas:', error);
+                document.getElementById('ultimasCargas').innerHTML = '<div class="list-group-item bg-transparent text-center py-3"><small class="text-danger">Error cargando datos</small></div>';
+            }
         }
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
             cargarEstadisticas();
+            cargarUltimasCargas();
+            
+            // Actualizar cada 30 segundos
+            setInterval(() => {
+                cargarEstadisticas();
+                cargarUltimasCargas();
+            }, 30000);
         });
     </script>
 </body>
