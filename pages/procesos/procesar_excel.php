@@ -46,7 +46,8 @@ function debug_log($message, $data = null) {
         'CONVERSIÓN FALLIDA' => true,
         'FECHA PROBLEMA' => true,
         'DV PROBLEMA' => true,
-        'MATERNO PROBLEMA' => true
+        'MATERNO PROBLEMA' => true,
+        'CONTROL_CARGAS' => true
     ];
     
     $is_important = false;
@@ -421,6 +422,69 @@ function obtenerTipoCampo($columna_bd) {
     return $tipos[$columna_bd] ?? 'string';
 }
 
+// FUNCIÓN CORREGIDA PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
+function registrarControlCargaMensual($tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado) {
+    global $db;
+    
+    debug_log("📝 CONTROL_CARGAS: Intentando registrar/actualizar - $tipo_archivo - $periodo");
+    
+    try {
+        // PRIMERO: Verificar si ya existe un registro para este tipo_archivo y periodo
+        $sql_check = "SELECT id FROM Control_Cargas_Mensuales 
+                     WHERE tipo_archivo = ? AND periodo = ?";
+        $params_check = [$tipo_archivo, $periodo];
+        
+        $stmt_check = $db->secure_query($sql_check, $params_check);
+        
+        if ($stmt_check && sqlsrv_has_rows($stmt_check)) {
+            // EXISTE: Actualizar registro existente
+            debug_log("🔄 CONTROL_CARGAS: Actualizando registro existente");
+            
+            $sql_update = "UPDATE Control_Cargas_Mensuales 
+                          SET archivo_origen = ?, 
+                              usuario_carga = ?, 
+                              registros_procesados = ?, 
+                              estado = ?, 
+                              fecha_carga = GETDATE()
+                          WHERE tipo_archivo = ? AND periodo = ?";
+            
+            $params_update = [$archivo_origen, $usuario_carga, $registros_procesados, $estado, $tipo_archivo, $periodo];
+            $result = $db->secure_query($sql_update, $params_update);
+            
+            if ($result) {
+                debug_log("✅ CONTROL_CARGAS: REGISTRO ACTUALIZADO - $tipo_archivo - $periodo - $registros_procesados registros");
+                return true;
+            } else {
+                debug_log("❌ CONTROL_CARGAS: Error actualizando registro existente");
+                return false;
+            }
+            
+        } else {
+            // NO EXISTE: Insertar nuevo registro
+            debug_log("🆕 CONTROL_CARGAS: Insertando nuevo registro");
+            
+            $sql_insert = "INSERT INTO Control_Cargas_Mensuales 
+                          (tipo_archivo, periodo, archivo_origen, usuario_carga, registros_procesados, estado, fecha_carga, fecha_creacion) 
+                          VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE())";
+            
+            $params_insert = [$tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado];
+            $result = $db->secure_query($sql_insert, $params_insert);
+            
+            if ($result) {
+                debug_log("✅ CONTROL_CARGAS: NUEVO REGISTRO INSERTADO - $tipo_archivo - $periodo - $registros_procesados registros");
+                return true;
+            } else {
+                debug_log("❌ CONTROL_CARGAS: Error insertando nuevo registro");
+                return false;
+            }
+        }
+        
+    } catch (Exception $e) {
+        debug_log("💥 CONTROL_CARGAS: EXCEPCIÓN - " . $e->getMessage());
+        return false;
+    }
+}
+
 function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archivo, $nombre_original, $usuario) {
     global $db, $TIPOS_ARCHIVO;
     
@@ -538,17 +602,45 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
             $sql_sp = "EXEC " . $config['sp'] . " @PeriodoProceso = ?, @ArchivoOrigen = ?, @UsuarioCarga = ?";
             $params_sp = [$periodo, $nombre_original, $usuario];
             
+            debug_log("🔧 SQL SP: $sql_sp");
+            debug_log("🔧 Parámetros SP: " . implode(', ', $params_sp));
+            
             $result_sp = $db->secure_query($sql_sp, $params_sp);
             
             if ($result_sp) {
                 debug_log("✅ Stored procedure ejecutado exitosamente");
-                $registros_procesados = $total_temporal;
                 
-                // REGISTRAR EN CONTROL_CARGAS_MENSUALES
-                registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, $registros_procesados, 'COMPLETADO');
+                // Obtener resultado del SP
+                if (sqlsrv_has_rows($result_sp)) {
+                    $row_sp = sqlsrv_fetch_array($result_sp, SQLSRV_FETCH_ASSOC);
+                    debug_log("📊 Resultado SP: ", $row_sp);
+                    
+                    if ($row_sp['resultado'] === 'EXITO') {
+                        $registros_procesados = $total_temporal;
+                        
+                        // REGISTRAR EN CONTROL_CARGAS_MENSUALES - SIEMPRE
+                        $registro_ok = registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, $registros_procesados, 'COMPLETADO');
+                        
+                        if ($registro_ok) {
+                            debug_log("✅ CONTROL_CARGAS: Registro exitoso en Control_Cargas_Mensuales");
+                        } else {
+                            debug_log("⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa");
+                        }
+                        
+                    } else {
+                        throw new Exception("Error en stored procedure: " . $row_sp['mensaje']);
+                    }
+                } else {
+                    throw new Exception("No se pudo obtener resultado del stored procedure");
+                }
                 
             } else {
-                throw new Exception("Error ejecutando stored procedure");
+                $errors = sqlsrv_errors();
+                $error_msg = "Error ejecutando stored procedure";
+                if ($errors) {
+                    $error_msg .= ": " . $errors[0]['message'];
+                }
+                throw new Exception($error_msg);
             }
         } else {
             throw new Exception("No hay datos válidos para procesar en la tabla temporal");
@@ -583,6 +675,10 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
         debug_log("💥 ERROR PROCESANDO ARCHIVO: " . $e->getMessage());
         actualizarLog($log_id, 'ERROR', 0, $e->getMessage());
         
+        // REGISTRAR ERROR EN CONTROL_CARGAS_MENSUALES TAMBIÉN
+        $periodo = extraerPeriodoDelNombre($nombre_original);
+        registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, 0, 'ERROR');
+        
         return [
             'success' => false,
             'error' => "Error procesando archivo: " . $e->getMessage(),
@@ -590,30 +686,6 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
         ];
     }
 }
-
-// NUEVA FUNCIÓN PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
-function registrarControlCargaMensual($tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado) {
-    global $db;
-    
-    try {
-        $sql = "INSERT INTO Control_Cargas_Mensuales 
-                (tipo_archivo, periodo, archivo_origen, usuario_carga, registros_procesados, estado, fecha_carga, fecha_creacion) 
-                VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE())";
-        
-        $params = [$tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado];
-        $result = $db->secure_query($sql, $params);
-        
-        debug_log("✅ Registro en Control_Cargas_Mensuales: $tipo_archivo - $periodo - $registros_procesados registros");
-        return $result !== false;
-        
-    } catch (Exception $e) {
-        debug_log("💥 Error registrando en Control_Cargas_Mensuales: " . $e->getMessage());
-        return false;
-    }
-}
-
-// NUEVA FUNCIÓN PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
-
 
 function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
     $valores = [];

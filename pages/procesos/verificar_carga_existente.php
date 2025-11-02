@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $periodo = extraerPeriodoDelNombre($nombre_archivo);
     
-    // Verificar en Control_Cargas_Mensuales si ya existe una carga para este período
+    // Verificar en Control_Cargas_Mensuales si ya existe una carga COMPLETADA para este período
     $sql = "SELECT TOP 1 
                 tipo_archivo,
                 archivo_origen,
@@ -56,7 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'usuario_carga' => $carga_existente['usuario_carga'],
                 'registros_procesados' => $carga_existente['registros_procesados'],
                 'archivo_origen' => $carga_existente['archivo_origen'],
-                'periodo' => $carga_existente['periodo']
+                'periodo' => $carga_existente['periodo'],
+                'estado_actual' => $carga_existente['estado']
             ]
         ]);
     } else {
