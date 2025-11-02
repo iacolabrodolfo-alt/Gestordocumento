@@ -372,6 +372,48 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         </div>
     </div>
 
+    <!-- Modal de Confirmación para Carga Existente -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                        Confirmar Carga Mensual
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Advertencia:</strong> Ya existe una carga para este período.
+                    </div>
+                    
+                    <div id="cargaExistenteInfo">
+                        <!-- La información de la carga existente se cargará aquí -->
+                    </div>
+                    
+                    <p class="mt-3">
+                        <strong>¿Está seguro que desea proceder con la nueva carga?</strong>
+                    </p>
+                    <ul class="small text-muted">
+                        <li>Los datos actuales se moverán al histórico</li>
+                        <li>Los nuevos datos reemplazarán los existentes</li>
+                        <li>Esta acción no se puede deshacer</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning" id="confirmForzarCarga">
+                        <i class="bi bi-check-circle me-2"></i>Sí, forzar carga
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Elementos DOM
@@ -482,23 +524,103 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
         }
 
         // JavaScript para manejar la carga de archivos via AJAX
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             const originalText = submitBtn.innerHTML;
+            const tipoArchivo = formData.get('tipo_archivo');
+            const archivo = document.getElementById('fileInput').files[0];
 
             // Validaciones básicas
-            if (!formData.get('tipo_archivo')) {
+            if (!tipoArchivo) {
                 showAlert('Por favor seleccione el tipo de archivo', 'warning');
                 return;
             }
             
-            if (!formData.get('archivo_excel').name) {
+            if (!archivo) {
                 showAlert('Por favor seleccione un archivo Excel', 'warning');
                 return;
             }
 
+            // Solo verificar para ASIGNACION_STOCK
+            if (tipoArchivo === 'ASIGNACION_STOCK') {
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-search me-2"></i>Verificando carga existente...';
+                    
+                    const verificacionData = new FormData();
+                    verificacionData.append('tipo_archivo', tipoArchivo);
+                    verificacionData.append('nombre_archivo', archivo.name);
+
+                    const response = await fetch('verificar_carga_existente.php', {
+                        method: 'POST',
+                        body: verificacionData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.existe) {
+                        // Mostrar modal de confirmación
+                        mostrarModalConfirmacion(data.detalles, formData);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error verificando carga:', error);
+                    // Continuar con la carga si hay error en la verificación
+                }
+            }
+
+            // Si no existe carga previa o no es ASIGNACION_STOCK, proceder normalmente
+            procederConCarga(formData, originalText);
+        });
+
+        // Función para mostrar el modal de confirmación
+        function mostrarModalConfirmacion(detalles, formData) {
+            const infoHtml = `
+                <div class="border rounded p-3 bg-light">
+                    <div class="row small">
+                        <div class="col-6">
+                            <strong>Archivo anterior:</strong><br>
+                            ${detalles.archivo_origen}
+                        </div>
+                        <div class="col-6">
+                            <strong>Fecha de carga:</strong><br>
+                            ${detalles.fecha_carga}
+                        </div>
+                        <div class="col-6 mt-2">
+                            <strong>Usuario:</strong><br>
+                            ${detalles.usuario_carga}
+                        </div>
+                        <div class="col-6 mt-2">
+                            <strong>Registros:</strong><br>
+                            ${detalles.registros_procesados} filas
+                        </div>
+                        <div class="col-12 mt-2">
+                            <strong>Período:</strong> ${detalles.periodo}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('cargaExistenteInfo').innerHTML = infoHtml;
+            
+            // Configurar el botón de confirmación
+            document.getElementById('confirmForzarCarga').onclick = function() {
+                procederConCarga(formData, document.getElementById('submitBtn').innerHTML);
+                bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            };
+            
+            // Mostrar modal
+            new bootstrap.Modal(document.getElementById('confirmModal')).show();
+        }
+
+        // Función para proceder con la carga (separada para reutilizar)
+        function procederConCarga(formData, originalText) {
+            const submitBtn = document.getElementById('submitBtn');
+            
             // Preparar UI para procesamiento
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
@@ -585,7 +707,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                     progressDetails.innerHTML = 'Insertando registros en la base de datos...';
                 }
             }
-        });
+        }
 
         function showAlert(mensaje, tipo = 'info') {
             // Crear alerta

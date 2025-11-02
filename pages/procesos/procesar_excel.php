@@ -543,6 +543,10 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
             if ($result_sp) {
                 debug_log("✅ Stored procedure ejecutado exitosamente");
                 $registros_procesados = $total_temporal;
+                
+                // REGISTRAR EN CONTROL_CARGAS_MENSUALES
+                registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, $registros_procesados, 'COMPLETADO');
+                
             } else {
                 throw new Exception("Error ejecutando stored procedure");
             }
@@ -586,6 +590,30 @@ function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archi
         ];
     }
 }
+
+// NUEVA FUNCIÓN PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
+function registrarControlCargaMensual($tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado) {
+    global $db;
+    
+    try {
+        $sql = "INSERT INTO Control_Cargas_Mensuales 
+                (tipo_archivo, periodo, archivo_origen, usuario_carga, registros_procesados, estado, fecha_carga, fecha_creacion) 
+                VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE())";
+        
+        $params = [$tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado];
+        $result = $db->secure_query($sql, $params);
+        
+        debug_log("✅ Registro en Control_Cargas_Mensuales: $tipo_archivo - $periodo - $registros_procesados registros");
+        return $result !== false;
+        
+    } catch (Exception $e) {
+        debug_log("💥 Error registrando en Control_Cargas_Mensuales: " . $e->getMessage());
+        return false;
+    }
+}
+
+// NUEVA FUNCIÓN PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
+
 
 function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
     $valores = [];
