@@ -10,8 +10,17 @@ require_once '../../config/database.php';
 $db = new Database();
 $db->connect();
 
-// Headers para JSON
+// =============================================
+// CONFIGURACIÓN DE TIMEOUT PARA ARCHIVOS GRANDES
+// =============================================
+set_time_limit(0);
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', '1024M');
+ignore_user_abort(true);
+
+// Headers para evitar timeouts en el navegador
 header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
 
 // =============================================
 // CONFIGURACIÓN DE PhpSpreadsheet MODERNA
@@ -22,59 +31,14 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 // =============================================
-// SISTEMA DE LOGGING OPTIMIZADO
+// SISTEMA DE LOGGING
 // =============================================
 function debug_log($message, $data = null) {
-    // Solo loguear errores y eventos importantes
-    $log_important = [
-        'ERROR' => true,
-        'EXCEPCIÓN' => true,
-        'INICIANDO' => true,
-        'FINALIZANDO' => true,
-        'PROCESAMIENTO' => true,
-        'RESUMEN' => true,
-        'STORED PROCEDURE' => true,
-        'VALIDACIÓN' => true,
-        'SOLICITUD' => true,
-        'ARCHIVO' => true,
-        'HEADERS' => true,
-        'TEMPORAL' => true,
-        'PROGRESO' => true,
-        'REGISTROS' => true,
-        'FALTANTES' => true,
-        'OMITIDA' => true,
-        'CONVERSIÓN FALLIDA' => true,
-        'FECHA PROBLEMA' => true,
-        'DV PROBLEMA' => true,
-        'MATERNO PROBLEMA' => true,
-        'CONTROL_CARGAS' => true
-    ];
-    
-    $is_important = false;
-    foreach (array_keys($log_important) as $keyword) {
-        if (stripos($message, $keyword) !== false) {
-            $is_important = true;
-            break;
-        }
-    }
-    
-    // Solo loguear conversiones exitosas cada 500 filas
-    static $conversion_counter = 0;
-    $is_conversion_success = strpos($message, '✅ Valor convertido') !== false || 
-                            strpos($message, '✅ Fecha convertida') !== false;
-    
-    if ($is_conversion_success) {
-        $conversion_counter++;
-        if ($conversion_counter % 500 !== 0) {
-            return;
-        }
-    }
-    
     $log_file = __DIR__ . '/../../debug_log.txt';
     $timestamp = date('Y-m-d H:i:s');
     $log_message = "[{$timestamp}] {$message}";
     
-    if ($data !== null && $is_important) {
+    if ($data !== null) {
         if (is_array($data)) {
             $log_message .= " | Data: " . json_encode($data);
         } else {
@@ -83,13 +47,6 @@ function debug_log($message, $data = null) {
     }
     
     $log_message .= "\n";
-    
-    // Limitar tamaño del archivo de log (1MB máximo)
-    if (file_exists($log_file) && filesize($log_file) > 1024 * 1024) {
-        $lines = file($log_file);
-        $keep_lines = array_slice($lines, -1000); // Mantener últimas 1000 líneas
-        file_put_contents($log_file, implode('', $keep_lines));
-    }
     
     file_put_contents($log_file, $log_message, FILE_APPEND | LOCK_EX);
 }
@@ -109,272 +66,357 @@ $TIPOS_ARCHIVO = [
             'PERIODO_PROCESO', 'RUT', 'DV', 'CONTRATO', 'NOMBRE', 
             'FECHA_CASTIGO', 'SALDO_GENERADO', 'CLASIFICACION_BIENES', 'CANAL'
         ]
+    ],
+    'JUDICIAL_BASE' => [
+        'nombre' => 'Judicial - Hoja BASE',
+        'tabla_temporal' => 'Carga_Temporal_JudicialBase',
+        'tabla_final' => 'Judicial_Base',
+        'sp' => 'sp_CargarJudicialBase',
+        'columnas_requeridas' => [
+            'periodo', 'juicio_id', 'contrato', 'rut', 'dv', 'nombre',
+            'fecha_asignacion', 'saldo', 'cuantia'
+        ]
     ]
 ];
 
 // =============================================
-// FUNCIONES AUXILIARES MEJORADAS
+// FUNCIONES PARA JUDICIAL (MANTENER LO QUE FUNCIONA)
 // =============================================
-function registrarLog($tipo_archivo, $nombre_archivo, $nombre_original, $usuario, $estado, $registros = null, $error = null) {
+function procesarJudicialSimple($archivo_temporal, $nombre_original, $usuario, $log_id) {
     global $db;
     
-    debug_log("📝 Registrando log en BD...");
+    debug_log("🚀 INICIANDO PROCESAMIENTO JUDICIAL");
     
     try {
-        $sql = "INSERT INTO Logs_Carga_Excel (tipo_archivo, nombre_archivo, nombre_original, usuario_carga, estado, registros_procesados, error_mensaje) 
-                OUTPUT INSERTED.id
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $spreadsheet = IOFactory::load($archivo_temporal);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $data = $worksheet->toArray();
         
-        $params = [$tipo_archivo, $nombre_archivo, $nombre_original, $usuario, $estado, $registros, $error];
-        $stmt = $db->secure_query($sql, $params);
+        debug_log("📊 Total de filas en Excel: " . count($data));
         
-        if ($stmt && sqlsrv_has_rows($stmt)) {
-            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-            $log_id = $row['id'];
-            debug_log("✅ Log registrado exitosamente - ID: " . $log_id);
-            return $log_id;
+        if (count($data) < 2) {
+            throw new Exception("El archivo Excel no contiene datos");
+        }
+        
+        $headers = $data[0];
+        debug_log("📋 Headers encontrados: " . implode(', ', array_slice($headers, 0, 15)));
+        
+        // Limpiar tabla temporal
+        debug_log("🧹 Limpiando tabla temporal...");
+        $db->secure_query("TRUNCATE TABLE Carga_Temporal_JudicialBase");
+        
+        // Procesar filas
+        $filas_procesadas = 0;
+        $filas_con_error = 0;
+        
+        for ($i = 1; $i < count($data); $i++) {
+            $fila = $data[$i];
+            
+            if (empty(array_filter($fila, function($v) { return $v !== null && $v !== ''; }))) {
+                continue;
+            }
+            
+            $fila_procesada = procesarFilaJudicial($fila, $headers, $nombre_original, $usuario);
+            
+            if ($fila_procesada && !empty($fila_procesada['periodo'])) {
+                if (insertarFilaTemporalJudicial($fila_procesada)) {
+                    $filas_procesadas++;
+                } else {
+                    $filas_con_error++;
+                }
+            } else {
+                $filas_con_error++;
+            }
+            
+            if ($i % 100 === 0) {
+                debug_log("📈 Progreso Judicial: $i/" . (count($data)-1) . " - OK: $filas_procesadas - Error: $filas_con_error");
+                if (ob_get_level() > 0) ob_flush();
+                flush();
+            }
+        }
+        
+        debug_log("📊 RESUMEN JUDICIAL: $filas_procesadas filas procesadas, $filas_con_error filas con error");
+        
+        // Verificar datos en temporal
+        $sql_contar = "SELECT COUNT(*) as total FROM Carga_Temporal_JudicialBase";
+        $stmt = $db->secure_query($sql_contar);
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        $total_temporal = $row['total'];
+        
+        debug_log("📦 Registros en tabla temporal judicial: " . $total_temporal);
+        
+        if ($total_temporal === 0) {
+            throw new Exception("No hay datos válidos en la tabla temporal judicial");
+        }
+        
+        // Ejecutar SP Judicial
+        $periodo = extraerPeriodoDelNombre($nombre_original);
+        debug_log("⚙️ Ejecutando SP Judicial con periodo: $periodo");
+        
+        $sql_sp = "EXEC sp_CargarJudicialBase @PeriodoProceso = ?, @ArchivoOrigen = ?, @UsuarioCarga = ?";
+        $params_sp = [$periodo, $nombre_original, $usuario];
+        
+        $result_sp = $db->secure_query($sql_sp, $params_sp);
+        
+        if (!$result_sp) {
+            $errors = sqlsrv_errors();
+            throw new Exception("Error ejecutando SP Judicial: " . ($errors[0]['message'] ?? 'Error desconocido'));
+        }
+        
+        if (sqlsrv_has_rows($result_sp)) {
+            $row_sp = sqlsrv_fetch_array($result_sp, SQLSRV_FETCH_ASSOC);
+            debug_log("📊 Resultado SP Judicial: " . json_encode($row_sp));
+            
+            if ($row_sp['resultado'] === 'EXITO') {
+                return [
+                    'success' => true,
+                    'registros_procesados' => $total_temporal,
+                    'mensaje' => $row_sp['mensaje'],
+                    'filas_con_error' => $filas_con_error
+                ];
+            } else {
+                throw new Exception("SP Judicial reportó error: " . $row_sp['mensaje']);
+            }
         } else {
-            debug_log("⚠️ No se pudo obtener el ID del log");
-            return 1;
+            throw new Exception("No se pudo obtener resultado del SP Judicial");
         }
         
     } catch (Exception $e) {
-        debug_log("💥 Excepción en log: " . $e->getMessage());
-        return 1;
+        debug_log("💥 ERROR EN PROCESAMIENTO JUDICIAL: " . $e->getMessage());
+        throw $e;
     }
 }
 
-function actualizarLog($log_id, $estado, $registros = null, $error = null) {
+// =============================================
+// FUNCIONES ORIGINALES PARA ASIGNACION STOCK (QUE FUNCIONABAN)
+// =============================================
+function procesarAsignacionStock($archivo_temporal, $nombre_original, $usuario, $log_id) {
     global $db;
     
-    debug_log("🔄 Actualizando log ID $log_id - Estado: $estado");
+    debug_log("🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK");
     
     try {
-        $sql = "UPDATE Logs_Carga_Excel SET estado = ?, registros_procesados = ?, error_mensaje = ? WHERE id = ?";
-        $params = [$estado, $registros, $error, $log_id];
-        $result = $db->secure_query($sql, $params);
+        $spreadsheet = IOFactory::load($archivo_temporal);
+        $worksheet = $spreadsheet->getActiveSheet();
+        $data = $worksheet->toArray();
         
-        debug_log("✅ Log actualizado exitosamente");
-        return true;
+        debug_log("📊 Total de filas en Excel: " . count($data));
+        
+        if (count($data) < 2) {
+            throw new Exception("El archivo Excel no contiene datos");
+        }
+        
+        $headers = $data[0];
+        debug_log("📋 Headers stock encontrados: " . implode(', ', array_slice($headers, 0, 10)));
+        
+        // Validar headers requeridos para stock
+        $headers_faltantes = [];
+        $columnas_requeridas = ['PERIODO_PROCESO', 'RUT', 'DV', 'CONTRATO', 'NOMBRE', 'FECHA_CASTIGO', 'SALDO_GENERADO', 'CLASIFICACION_BIENES', 'CANAL'];
+        
+        foreach ($columnas_requeridas as $columna_requerida) {
+            if (!in_array($columna_requerida, $headers)) {
+                $headers_faltantes[] = $columna_requerida;
+            }
+        }
+
+        if (!empty($headers_faltantes)) {
+            throw new Exception("Faltan columnas requeridas en el Excel stock: " . implode(', ', $headers_faltantes));
+        }
+        
+        // Limpiar tabla temporal
+        debug_log("🧹 Limpiando tabla temporal stock...");
+        $db->secure_query("TRUNCATE TABLE Carga_Temporal_AsignacionStock");
+        
+        // Procesar filas usando el método original que funcionaba
+        $filas_procesadas = 0;
+        $filas_con_error = 0;
+        $filas_omitidas = 0;
+        
+        for ($i = 1; $i < count($data); $i++) {
+            $fila = $data[$i];
+            
+            // Saltar filas vacías
+            if (empty(array_filter($fila, function($v) { return $v !== null && $v !== '' && $v !== ' '; }))) {
+                $filas_omitidas++;
+                continue;
+            }
+            
+            // Procesar fila con el método original
+            $fila_procesada = procesarFilaStockOriginal($fila, $headers, $nombre_original, $usuario);
+            
+            if ($fila_procesada) {
+                $resultado = insertarFilaTemporalStock($fila_procesada);
+                
+                if ($resultado === true) {
+                    $filas_procesadas++;
+                } else {
+                    $filas_con_error++;
+                }
+            } else {
+                $filas_con_error++;
+            }
+            
+            if ($i % 100 === 0) {
+                debug_log("📈 Progreso Stock: $i/" . (count($data)-1) . " - OK: $filas_procesadas - Error: $filas_con_error");
+                if (ob_get_level() > 0) ob_flush();
+                flush();
+            }
+        }
+        
+        debug_log("📊 RESUMEN STOCK: $filas_procesadas filas procesadas, $filas_con_error filas con error, $filas_omitidas omitidas");
+        
+        // Verificar datos en temporal
+        $sql_contar = "SELECT COUNT(*) as total FROM Carga_Temporal_AsignacionStock";
+        $stmt = $db->secure_query($sql_contar);
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+        $total_temporal = $row['total'];
+        
+        debug_log("📦 Registros en tabla temporal stock: " . $total_temporal);
+        
+        if ($total_temporal === 0) {
+            throw new Exception("No hay datos válidos en la tabla temporal de stock");
+        }
+        
+        // Ejecutar SP Stock
+        $periodo = extraerPeriodoDelNombreStock($nombre_original);
+        debug_log("⚙️ Ejecutando SP Stock con periodo: $periodo");
+        
+        $sql_sp = "EXEC sp_CargarAsignacionStock @PeriodoProceso = ?, @ArchivoOrigen = ?, @UsuarioCarga = ?";
+        $params_sp = [$periodo, $nombre_original, $usuario];
+        
+        $result_sp = $db->secure_query($sql_sp, $params_sp);
+        
+        if (!$result_sp) {
+            $errors = sqlsrv_errors();
+            throw new Exception("Error ejecutando SP Stock: " . ($errors[0]['message'] ?? 'Error desconocido'));
+        }
+        
+        if (sqlsrv_has_rows($result_sp)) {
+            $row_sp = sqlsrv_fetch_array($result_sp, SQLSRV_FETCH_ASSOC);
+            debug_log("📊 Resultado SP Stock: " . json_encode($row_sp));
+            
+            if ($row_sp['resultado'] === 'EXITO') {
+                return [
+                    'success' => true,
+                    'registros_procesados' => $total_temporal,
+                    'mensaje' => $row_sp['mensaje'],
+                    'filas_con_error' => $filas_con_error
+                ];
+            } else {
+                throw new Exception("SP Stock reportó error: " . $row_sp['mensaje']);
+            }
+        } else {
+            throw new Exception("No se pudo obtener resultado del SP Stock");
+        }
+        
     } catch (Exception $e) {
-        debug_log("💥 Error actualizando log: " . $e->getMessage());
-        return false;
+        debug_log("💥 ERROR EN PROCESAMIENTO STOCK: " . $e->getMessage());
+        throw $e;
     }
 }
 
-function registrarErrorCarga($log_carga_id, $contrato, $rut, $mensaje_error, $datos_fila = null) {
-    global $db;
-    
-    try {
-        $sql = "INSERT INTO Logs_Errores_Carga (log_carga_id, contrato, rut, mensaje_error, datos_fila) 
-                VALUES (?, ?, ?, ?, ?)";
-        
-        $datos_json = $datos_fila ? json_encode($datos_fila) : null;
-        $params = [$log_carga_id, $contrato, $rut, $mensaje_error, $datos_json];
-        $result = $db->secure_query($sql, $params);
-        
-        return $result !== false;
-    } catch (Exception $e) {
-        debug_log("💥 Error registrando error en BD: " . $e->getMessage());
-        return false;
-    }
-}
-
-function mapearColumnaBD($columna_excel) {
+// =============================================
+// FUNCIONES ORIGINALES DE MAPEO STOCK
+// =============================================
+function mapearColumnaBDStock($columna_excel) {
     $mapeo = [
+        // ASIGNACION STOCK
         'PERIODO_PROCESO' => 'periodo_proceso',
+        'periodo_proceso' => 'periodo_proceso',
         'FECHA_PROCESO' => 'fecha_proceso',
+        'fecha_proceso' => 'fecha_proceso',
         'PERIODO_CASTIGO' => 'periodo_castigo',
+        'periodo_castigo' => 'periodo_castigo',
         'RUT' => 'rut',
+        'rut' => 'rut',
         'DV' => 'dv',
+        'dv' => 'dv',
         'CONTRATO' => 'contrato',
+        'contrato' => 'contrato',
         'NOMBRE' => 'nombre',
+        'nombre' => 'nombre',
         'PATERNO' => 'paterno',
+        'paterno' => 'paterno',
         'MATERNO' => 'materno',
+        'materno' => 'materno',
         'FECHA_CASTIGO' => 'fecha_castigo',
+        'fecha_castigo' => 'fecha_castigo',
         'SALDO_GENERADO' => 'saldo_generado',
+        'saldo_generado' => 'saldo_generado',
         'CLASIFICACION_BIENES' => 'clasificacion_bienes',
+        'clasificacion_bienes' => 'clasificacion_bienes',
         'CANAL' => 'canal',
+        'canal' => 'canal',
         'CLASIFICACION' => 'clasificacion',
+        'clasificacion' => 'clasificacion',
         'DIRECCION' => 'direccion',
+        'direccion' => 'direccion',
         'NUMERACION_DIR' => 'numeracion_dir',
+        'numeracion_dir' => 'numeracion_dir',
         'RESTO' => 'resto',
+        'resto' => 'resto',
         'REGION' => 'region',
+        'region' => 'region',
         'COMUNA' => 'comuna',
+        'comuna' => 'comuna',
         'CIUDAD' => 'ciudad',
+        'ciudad' => 'ciudad',
         'ABOGADO' => 'abogado',
+        'abogado' => 'abogado',
         'ZONA' => 'zona',
+        'zona' => 'zona',
         'CORREO1' => 'correo1',
+        'correo1' => 'correo1',
         'CORREO2' => 'correo2',
+        'correo2' => 'correo2',
         'CORREO3' => 'correo3',
+        'correo3' => 'correo3',
         'CORREO4' => 'correo4',
+        'correo4' => 'correo4',
         'CORREO5' => 'correo5',
+        'correo5' => 'correo5',
         'TELEFONO1' => 'telefono1',
+        'telefono1' => 'telefono1',
         'TELEFONO2' => 'telefono2',
+        'telefono2' => 'telefono2',
         'TELEFONO3' => 'telefono3',
+        'telefono3' => 'telefono3',
         'TELEFONO4' => 'telefono4',
+        'telefono4' => 'telefono4',
         'TELEFONO5' => 'telefono5',
+        'telefono5' => 'telefono5',
         'FECHA_PAGO' => 'fecha_pago',
+        'fecha_pago' => 'fecha_pago',
         'MONTO_PAGO' => 'monto_pago',
+        'monto_pago' => 'monto_pago',
         'FECHA_VENCIMIENTO' => 'fecha_vencimiento',
+        'fecha_vencimiento' => 'fecha_vencimiento',
         'DIAS_MORA' => 'dias_mora',
+        'dias_mora' => 'dias_mora',
         'FECHA_SUSC' => 'fecha_susc',
+        'fecha_susc' => 'fecha_susc',
         'TIPO_CAMPAÑA' => 'tipo_campana',
         'TIPO_CAMPANA' => 'tipo_campana',
+        'tipo_campana' => 'tipo_campana',
         'DESCUENTO' => 'descuento',
+        'descuento' => 'descuento',
         'MONTO_A_PAGAR' => 'monto_a_pagar',
+        'monto_a_pagar' => 'monto_a_pagar',
         'SALDO_EN_CAMPAÑA' => 'saldo_en_campana',
         'SALDO_EN_CAMPANA' => 'saldo_en_campana',
+        'saldo_en_campana' => 'saldo_en_campana',
         'FECHA_ASIGNACION' => 'fecha_asignacion',
-        'TIPO_CARTERA' => 'tipo_cartera'
+        'fecha_asignacion' => 'fecha_asignacion',
+        'TIPO_CARTERA' => 'tipo_cartera',
+        'tipo_cartera' => 'tipo_cartera'
     ];
     
     return $mapeo[$columna_excel] ?? null;
 }
 
-function convertirFechaExcel($valor, $campo = '') {
-    if (empty($valor) || $valor === 'NULL' || $valor === 'null' || $valor === ' ') {
-        debug_log("⚠️ Fecha vacía o nula en campo: $campo");
-        return null;
-    }
-    
-    // Si es numérico (fecha Excel - formato serial)
-    if (is_numeric($valor)) {
-        // Verificar si es una fecha Excel válida (generalmente > 25569 que es 01/01/1970)
-        if ($valor > 25569) {
-            try {
-                $fecha = Date::excelToDateTimeObject($valor);
-                $fecha_formateada = $fecha->format('Y-m-d');
-                debug_log("✅ Fecha Excel convertida: $valor -> $fecha_formateada (Campo: $campo)");
-                return $fecha_formateada;
-            } catch (Exception $e) {
-                debug_log("⚠️ Error convirtiendo fecha Excel '$valor' (Campo: $campo): " . $e->getMessage());
-                return null;
-            }
-        } else {
-            // Si es un número pequeño, probablemente no es una fecha válida
-            debug_log("⚠️ Valor numérico pequeño, ignorando como fecha: $valor (Campo: $campo)");
-            return null;
-        }
-    }
-    
-    // Si es string con formato fecha
-    if (is_string($valor)) {
-        $valor = trim($valor);
-        
-        // 🔥 NUEVO: Verificar si es una fecha inválida común
-        if (in_array($valor, ['00/00/0000', '0000-00-00', '1900-01-00', 'NULL', 'N/A', 'NaN'])) {
-            debug_log("⚠️ Fecha inválida detectada: '$valor' (Campo: $campo)");
-            return null;
-        }
-        
-        // Formato mm/dd/yyyy (inglés) - común en Excel
-        if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $valor)) {
-            $fecha = DateTime::createFromFormat('m/d/Y', $valor);
-            if ($fecha !== false) {
-                $fecha_formateada = $fecha->format('Y-m-d');
-                debug_log("✅ Fecha string convertida: $valor -> $fecha_formateada (Campo: $campo)");
-                return $fecha_formateada;
-            } else {
-                debug_log("❌ FECHA PROBLEMA - No se pudo convertir: '$valor' (Campo: $campo)");
-                return null;
-            }
-        }
-        
-        // Formato dd-mm-yyyy
-        if (preg_match('/^\d{1,2}-\d{1,2}-\d{4}$/', $valor)) {
-            $fecha = DateTime::createFromFormat('d-m-Y', $valor);
-            if ($fecha !== false) {
-                $fecha_formateada = $fecha->format('Y-m-d');
-                debug_log("✅ Fecha string convertida: $valor -> $fecha_formateada (Campo: $campo)");
-                return $fecha_formateada;
-            } else {
-                debug_log("❌ FECHA PROBLEMA - No se pudo convertir: '$valor' (Campo: $campo)");
-                return null;
-            }
-        }
-        
-        // Formato yyyy-mm-dd (ya está bien)
-        if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $valor)) {
-            // Validar que sea una fecha real
-            $fecha = DateTime::createFromFormat('Y-m-d', $valor);
-            if ($fecha !== false) {
-                debug_log("✅ Fecha ya en formato correcto: $valor (Campo: $campo)");
-                return $valor;
-            } else {
-                debug_log("❌ FECHA PROBLEMA - Formato correcto pero fecha inválida: '$valor' (Campo: $campo)");
-                return null;
-            }
-        }
-        
-        debug_log("❌ FECHA PROBLEMA - Formato de fecha no reconocido: '$valor' (Campo: $campo)");
-    }
-    
-    return null; // Devolver null si no se puede convertir
-}
-
-function limpiarValor($valor, $tipo_campo = 'string') {
-    if ($valor === null || $valor === '' || $valor === ' ') {
-        return null;
-    }
-    
-    $valor = trim($valor);
-    
-    // 🔥 CORRECCIÓN ESPECIAL PARA DV: '0' es un valor válido
-    if ($tipo_campo === 'string' && $valor === '0') {
-        debug_log("✅ DV con valor '0' - ES VÁLIDO");
-        return '0';
-    }
-    
-    // 🔥 CORRECCIÓN: Manejar campos numéricos con comas como separador de miles
-    if ($tipo_campo === 'int' || $tipo_campo === 'decimal' || $tipo_campo === 'money') {
-        // Si es string, remover comas, espacios y símbolos de moneda
-        if (is_string($valor)) {
-            $valor_limpio = str_replace([',', ' ', '$', 'CLP', 'USD'], '', $valor);
-            
-            // Si después de limpiar queda vacío, retornar null
-            if ($valor_limpio === '') {
-                debug_log("⚠️ Valor numérico vacío después de limpiar: '$valor'");
-                return null;
-            }
-            
-            // Verificar si es numérico después de limpiar
-            if (is_numeric($valor_limpio)) {
-                if ($tipo_campo === 'int') {
-                    $valor_final = (int)$valor_limpio;
-                    debug_log("✅ Valor convertido a INT: '$valor' -> $valor_final");
-                    return $valor_final;
-                } else {
-                    $valor_final = (float)$valor_limpio;
-                    debug_log("✅ Valor convertido a DECIMAL: '$valor' -> $valor_final");
-                    return $valor_final;
-                }
-            } else {
-                // 🔥 NUEVO: Log para debugging de valores problemáticos
-                debug_log("❌ Valor no numérico después de limpiar: '$valor' -> '$valor_limpio' (Tipo: $tipo_campo)");
-                return null;
-            }
-        }
-        
-        // Si ya es numérico
-        if (is_numeric($valor)) {
-            if ($tipo_campo === 'int') {
-                return (int)$valor;
-            } else {
-                return (float)$valor;
-            }
-        }
-        
-        // Si no es numérico después de todos los intentos
-        debug_log("❌ Valor no convertible a numérico: '$valor' (Tipo: $tipo_campo)");
-        return null;
-    }
-    
-    return $valor;
-}
-
-function obtenerTipoCampo($columna_bd) {
+function obtenerTipoCampoStock($columna_bd) {
     $tipos = [
+        // ASIGNACION STOCK
         'periodo_proceso' => 'string',
         'fecha_proceso' => 'date',
         'periodo_castigo' => 'string',
@@ -422,340 +464,88 @@ function obtenerTipoCampo($columna_bd) {
     return $tipos[$columna_bd] ?? 'string';
 }
 
-// FUNCIÓN CORREGIDA PARA REGISTRAR EN CONTROL_CARGAS_MENSUALES
-function registrarControlCargaMensual($tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado) {
-    global $db;
+function procesarFilaStockOriginal($fila, $headers, $archivo_origen, $usuario) {
+    $valores = [
+        'fecha_carga' => date('Y-m-d H:i:s'),
+        'archivo_origen' => $archivo_origen,
+        'usuario_carga' => $usuario
+    ];
     
-    debug_log("📝 CONTROL_CARGAS: Intentando registrar/actualizar - $tipo_archivo - $periodo");
-    
-    try {
-        // PRIMERO: Verificar si ya existe un registro para este tipo_archivo y periodo
-        $sql_check = "SELECT id FROM Control_Cargas_Mensuales 
-                     WHERE tipo_archivo = ? AND periodo = ?";
-        $params_check = [$tipo_archivo, $periodo];
-        
-        $stmt_check = $db->secure_query($sql_check, $params_check);
-        
-        if ($stmt_check && sqlsrv_has_rows($stmt_check)) {
-            // EXISTE: Actualizar registro existente
-            debug_log("🔄 CONTROL_CARGAS: Actualizando registro existente");
-            
-            $sql_update = "UPDATE Control_Cargas_Mensuales 
-                          SET archivo_origen = ?, 
-                              usuario_carga = ?, 
-                              registros_procesados = ?, 
-                              estado = ?, 
-                              fecha_carga = GETDATE()
-                          WHERE tipo_archivo = ? AND periodo = ?";
-            
-            $params_update = [$archivo_origen, $usuario_carga, $registros_procesados, $estado, $tipo_archivo, $periodo];
-            $result = $db->secure_query($sql_update, $params_update);
-            
-            if ($result) {
-                debug_log("✅ CONTROL_CARGAS: REGISTRO ACTUALIZADO - $tipo_archivo - $periodo - $registros_procesados registros");
-                return true;
-            } else {
-                debug_log("❌ CONTROL_CARGAS: Error actualizando registro existente");
-                return false;
-            }
-            
-        } else {
-            // NO EXISTE: Insertar nuevo registro
-            debug_log("🆕 CONTROL_CARGAS: Insertando nuevo registro");
-            
-            $sql_insert = "INSERT INTO Control_Cargas_Mensuales 
-                          (tipo_archivo, periodo, archivo_origen, usuario_carga, registros_procesados, estado, fecha_carga, fecha_creacion) 
-                          VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE())";
-            
-            $params_insert = [$tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado];
-            $result = $db->secure_query($sql_insert, $params_insert);
-            
-            if ($result) {
-                debug_log("✅ CONTROL_CARGAS: NUEVO REGISTRO INSERTADO - $tipo_archivo - $periodo - $registros_procesados registros");
-                return true;
-            } else {
-                debug_log("❌ CONTROL_CARGAS: Error insertando nuevo registro");
-                return false;
-            }
-        }
-        
-    } catch (Exception $e) {
-        debug_log("💥 CONTROL_CARGAS: EXCEPCIÓN - " . $e->getMessage());
-        return false;
-    }
-}
-
-function procesarArchivoCompleto($tipo_archivo, $archivo_temporal, $nombre_archivo, $nombre_original, $usuario) {
-    global $db, $TIPOS_ARCHIVO;
-    
-    debug_log("🚀 INICIANDO PROCESAMIENTO COMPLETO: " . $tipo_archivo);
-    
-    $log_id = registrarLog($tipo_archivo, $nombre_archivo, $nombre_original, $usuario, 'PROCESANDO');
-    $registros_procesados = 0;
-    $errores = [];
-    
-    try {
-        debug_log("📦 CARGANDO ARCHIVO EXCEL...");
-        
-        // Cargar archivo Excel
-        $spreadsheet = IOFactory::load($archivo_temporal);
-        debug_log("✅ Excel cargado exitosamente");
-        
-        // Obtener primera hoja
-        $worksheet = $spreadsheet->getActiveSheet();
-        $data = $worksheet->toArray();
-        
-        debug_log("📊 Total de filas en Excel: " . count($data));
-        
-        if (count($data) < 2) {
-            throw new Exception("El archivo Excel no contiene datos (solo headers o vacío)");
-        }
-        
-        // Obtener headers (primera fila)
-        $headers = $data[0];
-        debug_log("📋 Headers encontrados:", $headers);
-        
-        // Validar headers requeridos
-        $config = $TIPOS_ARCHIVO[$tipo_archivo];
-        $headers_faltantes = [];
-        foreach ($config['columnas_requeridas'] as $columna_requerida) {
-            $encontrado = false;
-            foreach ($headers as $header) {
-                if (strtoupper(trim($header)) === $columna_requerida) {
-                    $encontrado = true;
-                    break;
-                }
-            }
-            if (!$encontrado) {
-                $headers_faltantes[] = $columna_requerida;
-            }
-        }
-        
-        if (!empty($headers_faltantes)) {
-            throw new Exception("Faltan columnas requeridas en el Excel: " . implode(', ', $headers_faltantes));
-        }
-        
-        // PASO 1: LIMPIAR TABLA TEMPORAL
-        debug_log("🧹 Limpiando tabla temporal...");
-        $sql_limpiar = "TRUNCATE TABLE " . $config['tabla_temporal'];
-        $db->secure_query($sql_limpiar);
-        debug_log("✅ Tabla temporal limpiada");
-        
-        // PASO 2: INSERTAR EN TABLA TEMPORAL
-        debug_log("💾 Insertando datos en tabla temporal...");
-        $filas_procesadas = 0;
-        $filas_con_error = 0;
-        $filas_omitidas = 0;
-        
-        for ($i = 1; $i < count($data); $i++) {
-            $fila = $data[$i];
-            
-            // Saltar filas vacías
-            if (empty(array_filter($fila, function($v) { return $v !== null && $v !== '' && $v !== ' '; }))) {
-                $filas_omitidas++;
-                continue;
-            }
-            
-            // Procesar fila
-            $fila_procesada = procesarFilaParaTemporal($fila, $headers, $nombre_original, $usuario);
-            
-            if ($fila_procesada) {
-                $resultado = insertarFilaTemporal($config['tabla_temporal'], $fila_procesada, $log_id);
-                
-                if ($resultado === true) {
-                    $filas_procesadas++;
-                } else {
-                    $filas_con_error++;
-                    // Registrar error específico
-                    registrarErrorCarga(
-                        $log_id, 
-                        $fila_procesada['contrato'] ?? 'N/A', 
-                        $fila_procesada['rut'] ?? 'N/A', 
-                        $resultado, // mensaje de error
-                        $fila_procesada
-                    );
-                }
-            } else {
-                $filas_con_error++;
-            }
-            
-            // Log cada 500 filas
-            if ($i % 500 === 0) {
-                debug_log("📈 Progreso: $i filas procesadas de " . (count($data) - 1) . " | Exitosas: $filas_procesadas | Errores: $filas_con_error");
-            }
-        }
-        
-        // PASO 3: VERIFICAR DATOS EN TEMPORAL
-        $sql_contar = "SELECT COUNT(*) as total FROM " . $config['tabla_temporal'];
-        $stmt = $db->secure_query($sql_contar);
-        if ($stmt && sqlsrv_has_rows($stmt)) {
-            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-            $total_temporal = $row['total'];
-            debug_log("📊 Registros en tabla temporal: " . $total_temporal);
-        }
-        
-        // PASO 4: EJECUTAR STORED PROCEDURE
-        if ($total_temporal > 0) {
-            debug_log("⚙️ Ejecutando stored procedure...");
-            $periodo = extraerPeriodoDelNombre($nombre_original);
-            
-            $sql_sp = "EXEC " . $config['sp'] . " @PeriodoProceso = ?, @ArchivoOrigen = ?, @UsuarioCarga = ?";
-            $params_sp = [$periodo, $nombre_original, $usuario];
-            
-            debug_log("🔧 SQL SP: $sql_sp");
-            debug_log("🔧 Parámetros SP: " . implode(', ', $params_sp));
-            
-            $result_sp = $db->secure_query($sql_sp, $params_sp);
-            
-            if ($result_sp) {
-                debug_log("✅ Stored procedure ejecutado exitosamente");
-                
-                // Obtener resultado del SP
-                if (sqlsrv_has_rows($result_sp)) {
-                    $row_sp = sqlsrv_fetch_array($result_sp, SQLSRV_FETCH_ASSOC);
-                    debug_log("📊 Resultado SP: ", $row_sp);
-                    
-                    if ($row_sp['resultado'] === 'EXITO') {
-                        $registros_procesados = $total_temporal;
-                        
-                        // REGISTRAR EN CONTROL_CARGAS_MENSUALES - SIEMPRE
-                        $registro_ok = registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, $registros_procesados, 'COMPLETADO');
-                        
-                        if ($registro_ok) {
-                            debug_log("✅ CONTROL_CARGAS: Registro exitoso en Control_Cargas_Mensuales");
-                        } else {
-                            debug_log("⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa");
-                        }
-                        
-                    } else {
-                        throw new Exception("Error en stored procedure: " . $row_sp['mensaje']);
-                    }
-                } else {
-                    throw new Exception("No se pudo obtener resultado del stored procedure");
-                }
-                
-            } else {
-                $errors = sqlsrv_errors();
-                $error_msg = "Error ejecutando stored procedure";
-                if ($errors) {
-                    $error_msg .= ": " . $errors[0]['message'];
-                }
-                throw new Exception($error_msg);
-            }
-        } else {
-            throw new Exception("No hay datos válidos para procesar en la tabla temporal");
-        }
-        
-        debug_log("📈 RESUMEN FINAL: $filas_procesadas filas procesadas, $filas_con_error filas con error, $filas_omitidas filas omitidas");
-        
-        if ($registros_procesados > 0) {
-            $estado = 'COMPLETADO';
-            $mensaje = "Archivo procesado correctamente. Registros insertados: $registros_procesados";
-            if ($filas_con_error > 0) {
-                $mensaje .= " ($filas_con_error filas con error)";
-            }
-        } else {
-            $estado = 'ERROR';
-            $mensaje = "No se pudieron procesar registros.";
-        }
-        
-        actualizarLog($log_id, $estado, $registros_procesados, implode('; ', $errores));
-        
-        return [
-            'success' => $registros_procesados > 0,
-            'registros_procesados' => $registros_procesados,
-            'errores' => $errores,
-            'log_id' => $log_id,
-            'mensaje' => $mensaje,
-            'filas_con_error' => $filas_con_error,
-            'filas_omitidas' => $filas_omitidas
-        ];
-        
-    } catch (Exception $e) {
-        debug_log("💥 ERROR PROCESANDO ARCHIVO: " . $e->getMessage());
-        actualizarLog($log_id, 'ERROR', 0, $e->getMessage());
-        
-        // REGISTRAR ERROR EN CONTROL_CARGAS_MENSUALES TAMBIÉN
-        $periodo = extraerPeriodoDelNombre($nombre_original);
-        registrarControlCargaMensual($tipo_archivo, $periodo, $nombre_original, $usuario, 0, 'ERROR');
-        
-        return [
-            'success' => false,
-            'error' => "Error procesando archivo: " . $e->getMessage(),
-            'log_id' => $log_id
-        ];
-    }
-}
-
-function procesarFilaParaTemporal($fila, $headers, $archivo_origen, $usuario) {
-    $valores = [];
-    
-    // Campos del sistema
-    $valores['fecha_carga'] = date('Y-m-d H:i:s');
-    $valores['archivo_origen'] = $archivo_origen;
-    $valores['usuario_carga'] = $usuario;
-    
-    // Mapear valores del Excel
+    // Mapear valores del Excel - MÉTODO ORIGINAL
     foreach ($headers as $index => $header) {
-        if (isset($fila[$index])) {
-            $columna_bd = mapearColumnaBD(strtoupper(trim($header)));
+        if (isset($fila[$index]) && $fila[$index] !== null && $fila[$index] !== '') {
+            $columna_bd = mapearColumnaBDStock($header);
+            
             if ($columna_bd) {
-                $tipo_campo = obtenerTipoCampo($columna_bd);
+                $tipo_campo = obtenerTipoCampoStock($columna_bd);
                 
                 if ($tipo_campo === 'date') {
                     $valores[$columna_bd] = convertirFechaExcel($fila[$index], $columna_bd);
                 } else {
-                    $valores[$columna_bd] = limpiarValor($fila[$index], $tipo_campo);
+                    $valores[$columna_bd] = limpiarValorStock($fila[$index], $tipo_campo);
                 }
             }
         }
     }
     
-    // 🔥 CORRECCIÓN ESPECIAL: Si materno está vacío, asignar string vacío en lugar de null
-    if (isset($valores['materno']) && $valores['materno'] === null) {
-        debug_log("⚠️ MATERNO PROBLEMA - Campo materno es NULL, asignando string vacío");
-        $valores['materno'] = '';
-    }
-    
-    // 🔥 NUEVO: Validar que todas las fechas sean válidas antes de insertar
-    $campos_fecha = ['fecha_proceso', 'fecha_castigo', 'fecha_pago', 'fecha_vencimiento', 'fecha_susc', 'fecha_asignacion'];
-    foreach ($campos_fecha as $campo_fecha) {
-        if (isset($valores[$campo_fecha]) && $valores[$campo_fecha] !== null) {
-            // Verificar que la fecha tenga el formato correcto YYYY-MM-DD
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $valores[$campo_fecha])) {
-                debug_log("❌ FECHA PROBLEMA - Formato incorrecto en $campo_fecha: " . $valores[$campo_fecha]);
-                $valores[$campo_fecha] = null; // Forzar a null si el formato es incorrecto
-            }
+    // VALIDACIÓN CAMPOS OBLIGATORIOS STOCK
+    $campos_obligatorios = ['periodo_proceso', 'contrato', 'rut', 'dv', 'nombre'];
+    foreach ($campos_obligatorios as $campo) {
+        if (!isset($valores[$campo]) || $valores[$campo] === null || $valores[$campo] === '') {
+            debug_log("❌ STOCK - FALTA CAMPO OBLIGATORIO: $campo");
+            return false;
         }
-    }
-    
-    // Validar campos requeridos - CORREGIDO: '0' es un DV válido
-    $campos_requeridos = ['periodo_proceso', 'rut', 'dv', 'contrato', 'nombre', 'fecha_castigo', 'saldo_generado', 'clasificacion_bienes', 'canal'];
-    $campos_faltantes = [];
-    
-    foreach ($campos_requeridos as $campo) {
-        // 🔥 CORRECCIÓN: Para el campo 'dv', '0' es un valor válido
-        if ($campo === 'dv') {
-            if (!isset($valores[$campo]) || ($valores[$campo] !== '0' && empty($valores[$campo]))) {
-                $campos_faltantes[] = $campo;
-                debug_log("❌ DV PROBLEMA - Campo dv vacío o inválido: '" . ($valores[$campo] ?? 'NULL') . "' - Contrato: " . ($valores['contrato'] ?? 'N/A'));
-            }
-        } else {
-            if (empty($valores[$campo])) {
-                $campos_faltantes[] = $campo;
-            }
-        }
-    }
-    
-    if (!empty($campos_faltantes)) {
-        debug_log("❌ Fila omitida - Campos requeridos vacíos: " . implode(', ', $campos_faltantes) . " - Contrato: " . ($valores['contrato'] ?? 'N/A'));
-        return false;
     }
     
     return $valores;
 }
 
-function insertarFilaTemporal($tabla_temporal, $fila_procesada, $log_id) {
+function limpiarValorStock($valor, $tipo_campo = 'string') {
+    if ($valor === null || $valor === '' || $valor === ' ') {
+        return null;
+    }
+    
+    $valor = trim($valor);
+    
+    // Para DV: '0' es válido
+    if ($tipo_campo === 'string' && $valor === '0') {
+        return '0';
+    }
+    
+    // Campos numéricos
+    if ($tipo_campo === 'int' || $tipo_campo === 'decimal') {
+        if (is_string($valor)) {
+            $valor_limpio = str_replace([',', ' ', '$', 'CLP', 'USD'], '', $valor);
+            
+            if ($valor_limpio === '') {
+                return null;
+            }
+            
+            if (is_numeric($valor_limpio)) {
+                if ($tipo_campo === 'int') {
+                    return (int)$valor_limpio;
+                } else {
+                    return (float)$valor_limpio;
+                }
+            }
+            return null;
+        }
+        
+        if (is_numeric($valor)) {
+            if ($tipo_campo === 'int') {
+                return (int)$valor;
+            } else {
+                return (float)$valor;
+            }
+        }
+        
+        return null;
+    }
+    
+    return $valor;
+}
+
+function insertarFilaTemporalStock($fila_procesada) {
     global $db;
     
     try {
@@ -763,88 +553,302 @@ function insertarFilaTemporal($tabla_temporal, $fila_procesada, $log_id) {
         $placeholders = array_fill(0, count($columnas), '?');
         $params = array_values($fila_procesada);
         
-        $sql = "INSERT INTO $tabla_temporal (" . implode(', ', $columnas) . ") 
+        $sql = "INSERT INTO Carga_Temporal_AsignacionStock (" . implode(', ', $columnas) . ") 
                 VALUES (" . implode(', ', $placeholders) . ")";
         
         $result = $db->secure_query($sql, $params);
         
-        if ($result) {
-            return true;
-        } else {
-            // OBTENER DETALLES DEL ERROR SQL
-            $errors = sqlsrv_errors();
-            $error_msg = "Error SQL desconocido";
-            if ($errors) {
-                $error_msg = $errors[0]['message'];
-                
-                // Detectar tipos específicos de errores
-                if (strpos($error_msg, 'String or binary data would be truncated') !== false) {
-                    $error_msg = "DATOS DEMASIADO LARGOS: " . $error_msg;
-                } elseif (strpos($error_msg, 'Cannot insert the value NULL into column') !== false) {
-                    // 🔥 NUEVO: Manejo específico para campos NOT NULL
-                    if (strpos($error_msg, 'materno') !== false) {
-                        $error_msg = "MATERNO PROBLEMA: Campo materno no permite NULL - " . $error_msg;
-                        debug_log("🔍 MATERNO PROBLEMA - Forzando string vacío para materno");
-                        // Intentar nuevamente con materno como string vacío
-                        $fila_procesada['materno'] = '';
-                        return insertarFilaTemporal($tabla_temporal, $fila_procesada, $log_id);
-                    }
-                    $error_msg = "CAMPO NOT NULL: " . $error_msg;
-                } elseif (strpos($error_msg, 'Conversion failed when converting date') !== false) {
-                    $error_msg = "ERROR DE FECHA: " . $error_msg;
-                    // 🔥 NUEVO: Log detallado de las fechas problemáticas
-                    debug_log("🔍 ANALIZANDO FECHAS PROBLEMA:");
-                    foreach ($fila_procesada as $campo => $valor) {
-                        if (strpos($campo, 'fecha') !== false) {
-                            debug_log("   📅 $campo: " . ($valor ?? 'NULL'));
-                        }
-                    }
-                } elseif (strpos($error_msg, 'Conversion failed') !== false) {
-                    $error_msg = "ERROR DE CONVERSIÓN DE DATOS: " . $error_msg;
-                } elseif (strpos($error_msg, 'Violation of PRIMARY KEY') !== false) {
-                    $error_msg = "DUPLICADO: " . $error_msg;
-                }
-            }
-            
-            debug_log("❌ Error insertando fila en temporal: " . $error_msg);
-            debug_log("   📋 Contrato: " . ($fila_procesada['contrato'] ?? 'N/A'));
-            debug_log("   📋 RUT: " . ($fila_procesada['rut'] ?? 'N/A'));
-            
-            return $error_msg; // Devolver mensaje de error específico
-        }
+        return $result !== false;
         
     } catch (Exception $e) {
-        $error_msg = "EXCEPCIÓN: " . $e->getMessage();
-        debug_log("💥 Excepción insertando fila: " . $error_msg);
-        debug_log("   📋 Contrato: " . ($fila_procesada['contrato'] ?? 'N/A'));
-        return $error_msg;
+        debug_log("💥 Error insertando fila stock: " . $e->getMessage());
+        return false;
     }
 }
 
+// =============================================
+// FUNCIONES COMUNES
+// =============================================
+function registrarLog($tipo_archivo, $nombre_archivo, $nombre_original, $usuario, $estado, $registros = null, $error = null) {
+    global $db;
+    
+    try {
+        $sql = "INSERT INTO Logs_Carga_Excel (tipo_archivo, nombre_archivo, nombre_original, usuario_carga, estado, registros_procesados, error_mensaje) 
+                OUTPUT INSERTED.id
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        $params = [$tipo_archivo, $nombre_archivo, $nombre_original, $usuario, $estado, $registros, $error];
+        $stmt = $db->secure_query($sql, $params);
+        
+        if ($stmt && sqlsrv_has_rows($stmt)) {
+            $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            return $row['id'];
+        } else {
+            return 1;
+        }
+        
+    } catch (Exception $e) {
+        debug_log("💥 Excepción en log: " . $e->getMessage());
+        return 1;
+    }
+}
+
+function actualizarLog($log_id, $estado, $registros = null, $error = null) {
+    global $db;
+    
+    try {
+        $sql = "UPDATE Logs_Carga_Excel SET estado = ?, registros_procesados = ?, error_mensaje = ? WHERE id = ?";
+        $params = [$estado, $registros, $error, $log_id];
+        $result = $db->secure_query($sql, $params);
+        
+        return true;
+    } catch (Exception $e) {
+        debug_log("💥 Error actualizando log: " . $e->getMessage());
+        return false;
+    }
+}
+
+function convertirFechaExcel($valor, $campo = '') {
+    if (empty($valor) || $valor === 'NULL' || $valor === 'null' || $valor === ' ') {
+        return null;
+    }
+    
+    // Si es numérico (fecha Excel)
+    if (is_numeric($valor)) {
+        if ($valor > 25569) {
+            try {
+                $fecha = Date::excelToDateTimeObject($valor);
+                return $fecha->format('Y-m-d');
+            } catch (Exception $e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    // Si es string con formato fecha
+    if (is_string($valor)) {
+        $valor = trim($valor);
+        
+        // Formato mm/dd/yyyy
+        if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $valor)) {
+            $fecha = DateTime::createFromFormat('m/d/Y', $valor);
+            if ($fecha !== false) {
+                return $fecha->format('Y-m-d');
+            }
+            return null;
+        }
+        
+        // Formato yyyy-mm-dd
+        if (preg_match('/^\d{4}-\d{1,2}-\d{1,2}$/', $valor)) {
+            $fecha = DateTime::createFromFormat('Y-m-d', $valor);
+            if ($fecha !== false) {
+                return $valor;
+            }
+            return null;
+        }
+    }
+    
+    return null;
+}
+
+function extraerPeriodoDelNombreStock($nombre_archivo) {
+    // Para archivos tipo "Asignacion 202511 - MAB.xlsx"
+    if (preg_match('/(\d{6})/', $nombre_archivo, $matches)) {
+        return $matches[1];
+    }
+    
+    return date('Ym');
+}
+
 function extraerPeriodoDelNombre($nombre_archivo) {
+    // Para archivos judiciales tipo "MAB - TCJ CAR PAGARE APERTURA 02-10-2025.xlsx"
+    if (preg_match('/(\d{2})-(\d{2})-(\d{4})/', $nombre_archivo, $matches)) {
+        $mes = $matches[2];
+        $año = $matches[3];
+        return $año . $mes;
+    }
+    
     // Para archivos tipo "Asignacion 202510 - MAB.xlsx"
     if (preg_match('/(\d{6})/', $nombre_archivo, $matches)) {
         return $matches[1];
     }
-    return date('Ym'); // Por defecto, mes actual
+    
+    return date('Ym');
 }
 
 // =============================================
-// PROCESAMIENTO DE LA SOLICITUD POST
+// FUNCIONES JUDICIAL (MANTENER)
 // =============================================
-debug_log("=================== NUEVA SOLICITUD ===================");
+function procesarFilaJudicial($fila, $headers, $archivo_origen, $usuario) {
+    $valores = [
+        'fecha_carga' => date('Y-m-d H:i:s'),
+        'archivo_origen' => $archivo_origen,
+        'usuario_carga' => $usuario
+    ];
+    
+    // Mapeo directo de columnas judiciales
+    $mapeo_directo = [
+        'periodo' => 'periodo',
+        'juicio_id' => 'juicio_id', 
+        'contrato' => 'contrato',
+        'rut' => 'rut',
+        'dv' => 'dv',
+        'nombre' => 'nombre',
+        'fecha_asignacion' => 'fecha_asignacion',
+        'saldo' => 'saldo',
+        'cuantia' => 'cuantia',
+        'sucursal' => 'sucursal',
+        'region' => 'region',
+        'comuna' => 'comuna',
+        'zona' => 'zona',
+        'tribunal' => 'tribunal',
+        'rol' => 'rol',
+        'año' => 'año',
+        'ciudad_tribunal' => 'ciudad_tribunal',
+        'homologacion' => 'homologacion',
+        'motivo_de_estado' => 'motivo_de_estado',
+        'etapa_procesal' => 'etapa_procesal',
+        'sub_etapa_procesal' => 'sub_etapa_procesal',
+        'fecha_sub_etapa_procesal' => 'fecha_sub_etapa_procesal',
+        'ultima_gestion' => 'ultima_gestion',
+        'observaciones' => 'observaciones',
+        'abogado_externo' => 'abogado_externo',
+        'vigente_castigo' => 'vigente_castigo',
+        'stock_flujo' => 'stock_flujo',
+        'aux' => 'aux',
+        'canal' => 'canal',
+        'nombre_cobrador' => 'nombre_cobrador',
+        'tramo_saldo' => 'tramo_saldo',
+        'tramo_antiguedad_castigo' => 'tramo_antiguedad_castigo',
+        'recovery' => 'recovery',
+        'pago_vigente' => 'pago_vigente',
+        'tramo_probabilidad_de_pago' => 'tramo_probabilidad_de_pago',
+        'probabilidad_de_pago' => 'probabilidad_de_pago',
+        'campana' => 'campana',
+        'ciudad' => 'ciudad',
+        'marca_piloto' => 'marca_piloto',
+        'tipo_contrato' => 'tipo_contrato'
+    ];
+    
+    foreach ($headers as $index => $header) {
+        if (!isset($fila[$index]) || $fila[$index] === null || $fila[$index] === '') {
+            continue;
+        }
+        
+        $header_limpio = trim($header);
+        $header_normalizado = strtolower($header_limpio);
+        $header_normalizado = str_replace(
+            ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü'],
+            ['a', 'e', 'i', 'o', 'u', 'n', 'u'],
+            $header_normalizado
+        );
+        $header_normalizado = preg_replace('/[^a-z0-9_\s]/', '', $header_normalizado);
+        $header_normalizado = str_replace(' ', '_', $header_normalizado);
+        
+        if (isset($mapeo_directo[$header_normalizado])) {
+            $columna_bd = $mapeo_directo[$header_normalizado];
+            $valor = $fila[$index];
+            
+            // Conversión especial para periodo
+            if ($columna_bd === 'periodo') {
+                $valores[$columna_bd] = convertirPeriodoAAAAMM($valor);
+            } 
+            // Conversión para fechas
+            elseif (strpos($columna_bd, 'fecha') !== false) {
+                $valores[$columna_bd] = convertirFechaExcel($valor);
+            }
+            // Para campos numéricos
+            elseif (in_array($columna_bd, ['saldo', 'cuantia', 'recovery', 'pago_vigente', 'probabilidad_de_pago'])) {
+                $valores[$columna_bd] = limpiarValorStock($valor, 'decimal');
+            }
+            // Para campos string
+            else {
+                $valores[$columna_bd] = $valor;
+            }
+        }
+    }
+    
+    // VALIDACIÓN CAMPOS OBLIGATORIOS JUDICIAL
+    $campos_obligatorios = ['periodo', 'contrato', 'rut', 'dv', 'nombre'];
+    foreach ($campos_obligatorios as $campo) {
+        if (!isset($valores[$campo]) || $valores[$campo] === null || $valores[$campo] === '') {
+            debug_log("❌ JUDICIAL - FALTA CAMPO OBLIGATORIO: $campo");
+            return false;
+        }
+    }
+    
+    return $valores;
+}
 
+function convertirPeriodoAAAAMM($valor_periodo) {
+    if (empty($valor_periodo) || $valor_periodo === 'NULL' || $valor_periodo === 'null') {
+        return null;
+    }
+    
+    $valor_periodo = trim($valor_periodo);
+    
+    // Si ya está en formato AAAAMM (6 dígitos numéricos)
+    if (preg_match('/^\d{6}$/', $valor_periodo)) {
+        return $valor_periodo;
+    }
+    
+    // Si viene como fecha string (10/1/2025)
+    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $valor_periodo, $matches)) {
+        $mes = intval($matches[1]);
+        $dia = intval($matches[2]);
+        $año = intval($matches[3]);
+        
+        if ($mes < 1 || $mes > 12) {
+            return null;
+        }
+        
+        return sprintf('%04d%02d', $año, $mes);
+    }
+    
+    // Si es numérico (fecha Excel)
+    if (is_numeric($valor_periodo)) {
+        try {
+            $fecha = Date::excelToDateTimeObject($valor_periodo);
+            return $fecha->format('Ym');
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+    
+    return null;
+}
+
+function insertarFilaTemporalJudicial($fila_procesada) {
+    global $db;
+    
+    try {
+        $columnas = array_keys($fila_procesada);
+        $placeholders = array_fill(0, count($columnas), '?');
+        $params = array_values($fila_procesada);
+        
+        $sql = "INSERT INTO Carga_Temporal_JudicialBase (" . implode(', ', $columnas) . ") 
+                VALUES (" . implode(', ', $placeholders) . ")";
+        
+        $result = $db->secure_query($sql, $params);
+        
+        return $result !== false;
+        
+    } catch (Exception $e) {
+        debug_log("💥 Error insertando fila judicial: " . $e->getMessage());
+        return false;
+    }
+}
+
+// =============================================
+// PROCESAMIENTO PRINCIPAL
+// =============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        debug_log("🔍 Verificando archivo subido...");
+        debug_log("=================== NUEVA SOLICITUD ===================");
         
         if (!isset($_FILES['archivo_excel'])) {
             throw new Exception('No se recibió ningún archivo');
-        }
-        
-        $file_error = $_FILES['archivo_excel']['error'];
-        if ($file_error !== UPLOAD_ERR_OK) {
-            throw new Exception('Error al subir el archivo. Código: ' . $file_error);
         }
         
         $tipo_archivo = $_POST['tipo_archivo'] ?? '';
@@ -854,28 +858,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Tipo de archivo no válido: ' . $tipo_archivo);
         }
         
-        // Validaciones de archivo
+        // Validaciones básicas
         $nombre_original = $_FILES['archivo_excel']['name'];
         $extension = strtolower(pathinfo($nombre_original, PATHINFO_EXTENSION));
-        debug_log("📄 Archivo: " . $nombre_original . " | Extensión: " . $extension);
         
         if (!in_array($extension, ['xlsx', 'xls'])) {
             throw new Exception('Solo se permiten archivos Excel (.xlsx, .xls)');
-        }
-        
-        $tamaño = $_FILES['archivo_excel']['size'];
-        debug_log("📏 Tamaño: " . $tamaño . " bytes");
-        
-        if ($tamaño > 50 * 1024 * 1024) {
-            throw new Exception('El archivo es demasiado grande (máximo 50MB)');
         }
         
         // Guardar archivo
         $timestamp = date('Ymd_His');
         $nombre_archivo = $timestamp . '_' . uniqid() . '_' . $nombre_original;
         $ruta_destino = '../../files/uploads/' . $nombre_archivo;
-        
-        debug_log("💾 Guardando en: " . $ruta_destino);
         
         // Crear directorio si no existe
         $upload_dir = dirname($ruta_destino);
@@ -887,29 +881,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Error al guardar el archivo en el servidor');
         }
         
-        debug_log("✅ Archivo guardado exitosamente");
+        debug_log("✅ Archivo guardado: " . $ruta_destino);
         
-        // Procesar archivo con nuevo enfoque
-        $resultado = procesarArchivoCompleto(
-            $tipo_archivo,
-            $ruta_destino,
-            $nombre_archivo,
-            $nombre_original,
-            $_SESSION['username']
-        );
+        // Registrar log
+        $log_id = registrarLog($tipo_archivo, $nombre_archivo, $nombre_original, $_SESSION['username'], 'PROCESANDO');
         
-        debug_log("📊 Resultado final del procesamiento:", $resultado);
+        // Procesar según el tipo de archivo
+        if ($tipo_archivo === 'JUDICIAL_BASE') {
+            $resultado = procesarJudicialSimple($ruta_destino, $nombre_original, $_SESSION['username'], $log_id);
+        } elseif ($tipo_archivo === 'ASIGNACION_STOCK') {
+            $resultado = procesarAsignacionStock($ruta_destino, $nombre_original, $_SESSION['username'], $log_id);
+        } else {
+            throw new Exception('Tipo de archivo no soportado: ' . $tipo_archivo);
+        }
+        
+        // Actualizar log con resultado
+        actualizarLog($log_id, 'COMPLETADO', $resultado['registros_procesados']);
+        
+        debug_log("✅ PROCESAMIENTO EXITOSO: " . $resultado['mensaje']);
         echo json_encode($resultado);
         
     } catch (Exception $e) {
         debug_log("💥 ERROR EN SOLICITUD: " . $e->getMessage());
+        
+        // Actualizar log con error
+        if (isset($log_id)) {
+            actualizarLog($log_id, 'ERROR', 0, $e->getMessage());
+        }
+        
         echo json_encode([
             'success' => false,
             'error' => $e->getMessage()
         ]);
     }
 } else {
-    debug_log("❌ MÉTODO NO PERMITADO: " . $_SERVER['REQUEST_METHOD']);
     echo json_encode([
         'success' => false,
         'error' => 'Método no permitido'
