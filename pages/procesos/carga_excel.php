@@ -543,8 +543,8 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                 return;
             }
 
-            // Solo verificar para ASIGNACION_STOCK
-            if (tipoArchivo === 'ASIGNACION_STOCK') {
+            // 🔥 VERIFICAR PARA AMBOS TIPOS DE ARCHIVO
+            if (tipoArchivo === 'ASIGNACION_STOCK' || tipoArchivo === 'JUDICIAL_BASE') {
                 try {
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="bi bi-search me-2"></i>Verificando carga existente...';

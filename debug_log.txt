@@ -1,98 +1,313 @@
-[2025-11-04 14:28:02] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
-[2025-11-04 14:28:02] =================== NUEVA SOLICITUD ===================
-[2025-11-04 14:28:02] 🎯 Tipo de archivo: ASIGNACION_STOCK
-[2025-11-04 14:28:02] ✅ Archivo guardado: ../../files/uploads/20251104_142802_6909ff6255551_Asignacion 202511 - MAB.xlsx
-[2025-11-04 14:28:02] 🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK
-[2025-11-04 14:28:06] 📊 Total de filas en Excel: 3209
-[2025-11-04 14:28:06] 📋 Headers stock encontrados: PERIODO_PROCESO, FECHA_PROCESO, PERIODO_CASTIGO, RUT, DV, CONTRATO, NOMBRE, PATERNO, MATERNO, FECHA_CASTIGO
-[2025-11-04 14:28:06] 🧹 Limpiando tabla temporal stock...
-[2025-11-04 14:28:06] 📈 Progreso Stock: 100/3208 - OK: 100 - Error: 0
-[2025-11-04 14:28:06] 📈 Progreso Stock: 200/3208 - OK: 200 - Error: 0
-[2025-11-04 14:28:06] 📈 Progreso Stock: 300/3208 - OK: 299 - Error: 1
-[2025-11-04 14:28:06] 📈 Progreso Stock: 400/3208 - OK: 399 - Error: 1
-[2025-11-04 14:28:06] 📈 Progreso Stock: 500/3208 - OK: 499 - Error: 1
-[2025-11-04 14:28:07] 📈 Progreso Stock: 600/3208 - OK: 597 - Error: 3
-[2025-11-04 14:28:07] 📈 Progreso Stock: 700/3208 - OK: 696 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 800/3208 - OK: 796 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 900/3208 - OK: 896 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1000/3208 - OK: 996 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1100/3208 - OK: 1096 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1200/3208 - OK: 1196 - Error: 4
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1300/3208 - OK: 1295 - Error: 5
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1400/3208 - OK: 1395 - Error: 5
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1500/3208 - OK: 1495 - Error: 5
-[2025-11-04 14:28:07] 📈 Progreso Stock: 1600/3208 - OK: 1592 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 1700/3208 - OK: 1692 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 1800/3208 - OK: 1792 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 1900/3208 - OK: 1892 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2000/3208 - OK: 1992 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2100/3208 - OK: 2092 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2200/3208 - OK: 2192 - Error: 8
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2300/3208 - OK: 2290 - Error: 10
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2400/3208 - OK: 2390 - Error: 10
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2500/3208 - OK: 2490 - Error: 10
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2600/3208 - OK: 2590 - Error: 10
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2700/3208 - OK: 2689 - Error: 11
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2800/3208 - OK: 2789 - Error: 11
-[2025-11-04 14:28:08] 📈 Progreso Stock: 2900/3208 - OK: 2889 - Error: 11
-[2025-11-04 14:28:08] 📈 Progreso Stock: 3000/3208 - OK: 2989 - Error: 11
-[2025-11-04 14:28:09] 📈 Progreso Stock: 3100/3208 - OK: 3089 - Error: 11
-[2025-11-04 14:28:09] 📈 Progreso Stock: 3200/3208 - OK: 3187 - Error: 13
-[2025-11-04 14:28:09] 📊 RESUMEN STOCK: 3195 filas procesadas, 13 filas con error, 0 omitidas
-[2025-11-04 14:28:09] 📦 Registros en tabla temporal stock: 3195
-[2025-11-04 14:28:09] ⚙️ Ejecutando SP Stock con periodo: 202511
-[2025-11-04 14:28:09] 📊 Resultado SP Stock: {"resultado":"EXITO","mensaje":"Carga completada. 0 registros insertados. Primera carga del per\u00edodo.","registros_movidos_historicos":0,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
-[2025-11-04 14:28:09] ✅ PROCESAMIENTO EXITOSO: Carga completada. 0 registros insertados. Primera carga del período.
-[2025-11-04 14:28:09] =================== FIN SOLICITUD ===================
+[2025-11-04 20:19:59] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 20:19:59] =================== NUEVA SOLICITUD ===================
+[2025-11-04 20:19:59] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-11-04 20:19:59] ✅ Archivo guardado: ../../files/uploads/20251104_201959_690a51df5ac97_Asignación 202510 - MAB - copia.xlsx
+[2025-11-04 20:19:59] 🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK
+[2025-11-04 20:20:03] 📊 Total de filas en Excel: 2977
+[2025-11-04 20:20:03] 📋 Headers stock encontrados: PERIODO_PROCESO, FECHA_PROCESO, PERIODO_CASTIGO, RUT, DV, CONTRATO, NOMBRE, PATERNO, MATERNO, FECHA_CASTIGO
+[2025-11-04 20:20:03] 🧹 Limpiando tabla temporal stock...
+[2025-11-04 20:20:03] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:04] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:04] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:04] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:04] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:05] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:06] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:06] 📊 RESUMEN STOCK: 2976 filas procesadas, 0 filas con error, 0 omitidas
+[2025-11-04 20:20:06] 📦 Registros en tabla temporal stock: 2976
+[2025-11-04 20:20:06] ⚙️ Ejecutando SP Stock con periodo: 202510
+[2025-11-04 20:20:06] 📊 Resultado SP Stock: {"resultado":"EXITO","mensaje":"Carga completada. 0 registros insertados. 3208 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":3208,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 20:20:06] 📝 CONTROL_CARGAS: Intentando registrar - ASIGNACION_STOCK - 202510
+[2025-11-04 20:20:06] ❌ CONTROL_CARGAS: ERROR al insertar
+[2025-11-04 20:20:06] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 20:20:06] ✅ PROCESAMIENTO EXITOSO: Carga completada. 0 registros insertados. 3208 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 20:20:06] =================== FIN SOLICITUD ===================
 
-[2025-11-04 14:34:41] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
-[2025-11-04 14:34:41] =================== NUEVA SOLICITUD ===================
-[2025-11-04 14:34:41] 🎯 Tipo de archivo: JUDICIAL_BASE
-[2025-11-04 14:34:41] ✅ Archivo guardado: ../../files/uploads/20251104_143441_690a00f198fcd_MAB - TCJ CAR PAGARE al 03-11-2025 - APERTURA.xlsx
-[2025-11-04 14:34:41] 🚀 INICIANDO PROCESAMIENTO JUDICIAL
-[2025-11-04 14:35:01] 📊 Total de filas en Excel: 3682
-[2025-11-04 14:35:01] 📋 Headers encontrados: periodo, juicio_id, contrato, rut, dv, nombre, fecha_asignacion, saldo, cuantia, sucursal, region, comuna, zona, tribunal, rol
-[2025-11-04 14:35:01] 🧹 Limpiando tabla temporal...
-[2025-11-04 14:35:01] 📈 Progreso Judicial: 100/3681 - OK: 100 - Error: 0
-[2025-11-04 14:35:01] 📈 Progreso Judicial: 200/3681 - OK: 200 - Error: 0
-[2025-11-04 14:35:01] 📈 Progreso Judicial: 300/3681 - OK: 300 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 400/3681 - OK: 400 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 500/3681 - OK: 500 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 600/3681 - OK: 600 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 700/3681 - OK: 700 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 800/3681 - OK: 800 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 900/3681 - OK: 900 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 1000/3681 - OK: 1000 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 1100/3681 - OK: 1100 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 1200/3681 - OK: 1200 - Error: 0
-[2025-11-04 14:35:02] 📈 Progreso Judicial: 1300/3681 - OK: 1300 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1400/3681 - OK: 1400 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1500/3681 - OK: 1500 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1600/3681 - OK: 1600 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1700/3681 - OK: 1700 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1800/3681 - OK: 1800 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 1900/3681 - OK: 1900 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 2000/3681 - OK: 2000 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 2100/3681 - OK: 2100 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 2200/3681 - OK: 2200 - Error: 0
-[2025-11-04 14:35:03] 📈 Progreso Judicial: 2300/3681 - OK: 2300 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2400/3681 - OK: 2400 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2500/3681 - OK: 2500 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2600/3681 - OK: 2600 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2700/3681 - OK: 2700 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2800/3681 - OK: 2800 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 2900/3681 - OK: 2900 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3000/3681 - OK: 3000 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3100/3681 - OK: 3100 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3200/3681 - OK: 3200 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3300/3681 - OK: 3300 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3400/3681 - OK: 3400 - Error: 0
-[2025-11-04 14:35:04] 📈 Progreso Judicial: 3500/3681 - OK: 3500 - Error: 0
-[2025-11-04 14:35:05] 📈 Progreso Judicial: 3600/3681 - OK: 3600 - Error: 0
-[2025-11-04 14:35:05] 📊 RESUMEN JUDICIAL: 3681 filas procesadas, 0 filas con error
-[2025-11-04 14:35:05] 📦 Registros en tabla temporal judicial: 3681
-[2025-11-04 14:35:05] ⚙️ Ejecutando SP Judicial con periodo: 202511
-[2025-11-04 14:35:05] 📊 Resultado SP Judicial: {"resultado":"EXITO","mensaje":"Carga judicial completada. 0 registros insertados. Primera carga del per\u00edodo.","registros_movidos_historicos":0,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
-[2025-11-04 14:35:05] ✅ PROCESAMIENTO EXITOSO: Carga judicial completada. 0 registros insertados. Primera carga del período.
-[2025-11-04 14:35:05] =================== FIN SOLICITUD ===================
+[2025-11-04 20:20:33] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 20:20:33] =================== NUEVA SOLICITUD ===================
+[2025-11-04 20:20:33] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-11-04 20:20:33] ✅ Archivo guardado: ../../files/uploads/20251104_202033_690a5201aae71_Asignacion 202511 - MAB.xlsx
+[2025-11-04 20:20:33] 🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK
+[2025-11-04 20:20:37] 📊 Total de filas en Excel: 3209
+[2025-11-04 20:20:37] 📋 Headers stock encontrados: PERIODO_PROCESO, FECHA_PROCESO, PERIODO_CASTIGO, RUT, DV, CONTRATO, NOMBRE, PATERNO, MATERNO, FECHA_CASTIGO
+[2025-11-04 20:20:37] 🧹 Limpiando tabla temporal stock...
+[2025-11-04 20:20:37] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:37] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:37] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:37] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:38] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:38] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:38] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:38] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:39] 📊 RESUMEN STOCK: 3208 filas procesadas, 0 filas con error, 0 omitidas
+[2025-11-04 20:20:39] 📦 Registros en tabla temporal stock: 3208
+[2025-11-04 20:20:39] ⚙️ Ejecutando SP Stock con periodo: 202511
+[2025-11-04 20:20:40] 📊 Resultado SP Stock: {"resultado":"EXITO","mensaje":"Carga completada. 0 registros insertados. 2976 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":2976,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 20:20:40] 📝 CONTROL_CARGAS: Intentando registrar - ASIGNACION_STOCK - 202511
+[2025-11-04 20:20:40] ❌ CONTROL_CARGAS: ERROR al insertar
+[2025-11-04 20:20:40] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 20:20:40] ✅ PROCESAMIENTO EXITOSO: Carga completada. 0 registros insertados. 2976 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 20:20:40] =================== FIN SOLICITUD ===================
+
+[2025-11-04 20:20:53] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 20:20:53] =================== NUEVA SOLICITUD ===================
+[2025-11-04 20:20:53] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-11-04 20:20:53] ✅ Archivo guardado: ../../files/uploads/20251104_202053_690a5215c2866_Asignacion 202511 - MAB.xlsx
+[2025-11-04 20:20:53] 🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK
+[2025-11-04 20:20:57] 📊 Total de filas en Excel: 3209
+[2025-11-04 20:20:57] 📋 Headers stock encontrados: PERIODO_PROCESO, FECHA_PROCESO, PERIODO_CASTIGO, RUT, DV, CONTRATO, NOMBRE, PATERNO, MATERNO, FECHA_CASTIGO
+[2025-11-04 20:20:57] 🧹 Limpiando tabla temporal stock...
+[2025-11-04 20:20:57] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:57] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:57] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:57] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:58] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:59] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:59] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:59] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 20:20:59] 📊 RESUMEN STOCK: 3208 filas procesadas, 0 filas con error, 0 omitidas
+[2025-11-04 20:20:59] 📦 Registros en tabla temporal stock: 3208
+[2025-11-04 20:20:59] ⚙️ Ejecutando SP Stock con periodo: 202511
+[2025-11-04 20:20:59] 📊 Resultado SP Stock: {"resultado":"EXITO","mensaje":"Carga completada. 0 registros insertados. 3208 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":3208,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 20:20:59] 📝 CONTROL_CARGAS: Intentando registrar - ASIGNACION_STOCK - 202511
+[2025-11-04 20:20:59] ❌ CONTROL_CARGAS: ERROR al insertar
+[2025-11-04 20:20:59] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 20:20:59] ✅ PROCESAMIENTO EXITOSO: Carga completada. 0 registros insertados. 3208 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 20:20:59] =================== FIN SOLICITUD ===================
+
+[2025-11-04 20:22:38] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 20:22:38] =================== NUEVA SOLICITUD ===================
+[2025-11-04 20:22:38] 🎯 Tipo de archivo: JUDICIAL_BASE
+[2025-11-04 20:22:38] ✅ Archivo guardado: ../../files/uploads/20251104_202238_690a527e57fb1_MAB - TCJ CAR PAGARE al 03-11-2025 - APERTURA.xlsx
+[2025-11-04 20:22:38] 🚀 INICIANDO PROCESAMIENTO JUDICIAL
+[2025-11-04 20:22:56] 📊 Total de filas en Excel: 3682
+[2025-11-04 20:22:56] 📋 Headers encontrados: periodo, juicio_id, contrato, rut, dv, nombre, fecha_asignacion, saldo, cuantia, sucursal, region, comuna, zona, tribunal, rol
+[2025-11-04 20:22:56] 🧹 Limpiando tabla temporal...
+[2025-11-04 20:22:56] 📈 Progreso Judicial: 100/3681 - OK: 100 - Error: 0
+[2025-11-04 20:22:56] 📈 Progreso Judicial: 200/3681 - OK: 200 - Error: 0
+[2025-11-04 20:22:56] 📈 Progreso Judicial: 300/3681 - OK: 300 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 400/3681 - OK: 400 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 500/3681 - OK: 500 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 600/3681 - OK: 600 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 700/3681 - OK: 700 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 800/3681 - OK: 800 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 900/3681 - OK: 900 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1000/3681 - OK: 1000 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1100/3681 - OK: 1100 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1200/3681 - OK: 1200 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1300/3681 - OK: 1300 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1400/3681 - OK: 1400 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1500/3681 - OK: 1500 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1600/3681 - OK: 1600 - Error: 0
+[2025-11-04 20:22:57] 📈 Progreso Judicial: 1700/3681 - OK: 1700 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 1800/3681 - OK: 1800 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 1900/3681 - OK: 1900 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2000/3681 - OK: 2000 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2100/3681 - OK: 2100 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2200/3681 - OK: 2200 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2300/3681 - OK: 2300 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2400/3681 - OK: 2400 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2500/3681 - OK: 2500 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2600/3681 - OK: 2600 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2700/3681 - OK: 2700 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2800/3681 - OK: 2800 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 2900/3681 - OK: 2900 - Error: 0
+[2025-11-04 20:22:58] 📈 Progreso Judicial: 3000/3681 - OK: 3000 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3100/3681 - OK: 3100 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3200/3681 - OK: 3200 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3300/3681 - OK: 3300 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3400/3681 - OK: 3400 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3500/3681 - OK: 3500 - Error: 0
+[2025-11-04 20:22:59] 📈 Progreso Judicial: 3600/3681 - OK: 3600 - Error: 0
+[2025-11-04 20:22:59] 📊 RESUMEN JUDICIAL: 3681 filas procesadas, 0 filas con error
+[2025-11-04 20:22:59] 📦 Registros en tabla temporal judicial: 3681
+[2025-11-04 20:22:59] ⚙️ Ejecutando SP Judicial con periodo: 202511
+[2025-11-04 20:22:59] 📊 Resultado SP Judicial: {"resultado":"EXITO","mensaje":"Carga judicial completada. 0 registros insertados. 2427 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":2427,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 20:22:59] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 20:22:59] ✅ PROCESAMIENTO EXITOSO: Carga judicial completada. 0 registros insertados. 2427 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 20:22:59] =================== FIN SOLICITUD ===================
+
+[2025-11-04 21:50:36] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 21:50:36] =================== NUEVA SOLICITUD ===================
+[2025-11-04 21:50:36] 🎯 Tipo de archivo: ASIGNACION_STOCK
+[2025-11-04 21:50:36] ✅ Archivo guardado: ../../files/uploads/20251104_215036_690a671cd96af_Asignación 202510 - MAB - copia.xlsx
+[2025-11-04 21:50:36] 🚀 INICIANDO PROCESAMIENTO ASIGNACION STOCK
+[2025-11-04 21:50:40] 📊 Total de filas en Excel: 2977
+[2025-11-04 21:50:40] 📋 Headers stock encontrados: PERIODO_PROCESO, FECHA_PROCESO, PERIODO_CASTIGO, RUT, DV, CONTRATO, NOMBRE, PATERNO, MATERNO, FECHA_CASTIGO
+[2025-11-04 21:50:40] 🧹 Limpiando tabla temporal stock...
+[2025-11-04 21:50:41] 📈 Progreso Stock: 100/2976 - OK: 100 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 200/2976 - OK: 200 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 300/2976 - OK: 300 - Error: 0
+[2025-11-04 21:50:41] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:41] 📈 Progreso Stock: 400/2976 - OK: 400 - Error: 0
+[2025-11-04 21:50:41] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:41] 📈 Progreso Stock: 500/2976 - OK: 500 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 600/2976 - OK: 600 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 700/2976 - OK: 700 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 800/2976 - OK: 800 - Error: 0
+[2025-11-04 21:50:41] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:41] 📈 Progreso Stock: 900/2976 - OK: 900 - Error: 0
+[2025-11-04 21:50:41] 📈 Progreso Stock: 1000/2976 - OK: 1000 - Error: 0
+[2025-11-04 21:50:42] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1100/2976 - OK: 1100 - Error: 0
+[2025-11-04 21:50:42] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1200/2976 - OK: 1200 - Error: 0
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1300/2976 - OK: 1300 - Error: 0
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1400/2976 - OK: 1400 - Error: 0
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1500/2976 - OK: 1500 - Error: 0
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1600/2976 - OK: 1600 - Error: 0
+[2025-11-04 21:50:42] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1700/2976 - OK: 1700 - Error: 0
+[2025-11-04 21:50:42] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1800/2976 - OK: 1800 - Error: 0
+[2025-11-04 21:50:42] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:42] 📈 Progreso Stock: 1900/2976 - OK: 1900 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2000/2976 - OK: 2000 - Error: 0
+[2025-11-04 21:50:43] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:43] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2100/2976 - OK: 2100 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2200/2976 - OK: 2200 - Error: 0
+[2025-11-04 21:50:43] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2300/2976 - OK: 2300 - Error: 0
+[2025-11-04 21:50:43] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2400/2976 - OK: 2400 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2500/2976 - OK: 2500 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2600/2976 - OK: 2600 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2700/2976 - OK: 2700 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2800/2976 - OK: 2800 - Error: 0
+[2025-11-04 21:50:43] 📈 Progreso Stock: 2900/2976 - OK: 2900 - Error: 0
+[2025-11-04 21:50:43] 🔧 STOCK - Campo 'materno' vacío, asignando string vacío
+[2025-11-04 21:50:43] 📊 RESUMEN STOCK: 2976 filas procesadas, 0 filas con error, 0 omitidas
+[2025-11-04 21:50:43] 📦 Registros en tabla temporal stock: 2976
+[2025-11-04 21:50:43] ⚙️ Ejecutando SP Stock con periodo: 202510
+[2025-11-04 21:50:44] 📊 Resultado SP Stock: {"resultado":"EXITO","mensaje":"Carga completada. 0 registros insertados. 3208 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":3208,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 21:50:44] 📝 CONTROL_CARGAS: Intentando registrar - ASIGNACION_STOCK - 202510 - COMPLETADO
+[2025-11-04 21:50:44] ❌ CONTROL_CARGAS: ERROR al insertar - [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert duplicate key row in object 'dbo.Control_Cargas_Mensuales' with unique index 'IX_Control_Cargas_Periodo'. The duplicate key value is (ASIGNACION_STOCK, 202510).
+[2025-11-04 21:50:44] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 21:50:44] ✅ PROCESAMIENTO EXITOSO: Carga completada. 0 registros insertados. 3208 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 21:50:44] =================== FIN SOLICITUD ===================
+
+[2025-11-04 21:54:19] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 21:54:19] =================== NUEVA SOLICITUD ===================
+[2025-11-04 21:54:19] 🎯 Tipo de archivo: JUDICIAL_BASE
+[2025-11-04 21:54:19] ✅ Archivo guardado: ../../files/uploads/20251104_215419_690a67fb9bc3e_MAB - TCJ CAR PAGARE al 03-11-2025 - APERTURA.xlsx
+[2025-11-04 21:54:19] 🚀 INICIANDO PROCESAMIENTO JUDICIAL
+[2025-11-04 21:54:37] 📊 Total de filas en Excel: 3682
+[2025-11-04 21:54:37] 📋 Headers encontrados: periodo, juicio_id, contrato, rut, dv, nombre, fecha_asignacion, saldo, cuantia, sucursal, region, comuna, zona, tribunal, rol
+[2025-11-04 21:54:37] 🧹 Limpiando tabla temporal...
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 100/3681 - OK: 100 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 200/3681 - OK: 200 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 300/3681 - OK: 300 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 400/3681 - OK: 400 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 500/3681 - OK: 500 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 600/3681 - OK: 600 - Error: 0
+[2025-11-04 21:54:37] 📈 Progreso Judicial: 700/3681 - OK: 700 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 800/3681 - OK: 800 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 900/3681 - OK: 900 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1000/3681 - OK: 1000 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1100/3681 - OK: 1100 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1200/3681 - OK: 1200 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1300/3681 - OK: 1300 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1400/3681 - OK: 1400 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1500/3681 - OK: 1500 - Error: 0
+[2025-11-04 21:54:38] 📈 Progreso Judicial: 1600/3681 - OK: 1600 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 1700/3681 - OK: 1700 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 1800/3681 - OK: 1800 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 1900/3681 - OK: 1900 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2000/3681 - OK: 2000 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2100/3681 - OK: 2100 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2200/3681 - OK: 2200 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2300/3681 - OK: 2300 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2400/3681 - OK: 2400 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2500/3681 - OK: 2500 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2600/3681 - OK: 2600 - Error: 0
+[2025-11-04 21:54:39] 📈 Progreso Judicial: 2700/3681 - OK: 2700 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 2800/3681 - OK: 2800 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 2900/3681 - OK: 2900 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3000/3681 - OK: 3000 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3100/3681 - OK: 3100 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3200/3681 - OK: 3200 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3300/3681 - OK: 3300 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3400/3681 - OK: 3400 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3500/3681 - OK: 3500 - Error: 0
+[2025-11-04 21:54:40] 📈 Progreso Judicial: 3600/3681 - OK: 3600 - Error: 0
+[2025-11-04 21:54:40] 📊 RESUMEN JUDICIAL: 3681 filas procesadas, 0 filas con error
+[2025-11-04 21:54:40] 📦 Registros en tabla temporal judicial: 3681
+[2025-11-04 21:54:40] ⚙️ Ejecutando SP Judicial con periodo: 202511
+[2025-11-04 21:54:41] 📊 Resultado SP Judicial: {"resultado":"EXITO","mensaje":"Carga judicial completada. 0 registros insertados. 3681 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":3681,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 21:54:41] 📝 CONTROL_CARGAS: Intentando registrar - JUDICIAL_BASE - 202511 - COMPLETADO
+[2025-11-04 21:54:41] ✅ CONTROL_CARGAS: REGISTRADO EXITOSAMENTE - JUDICIAL_BASE - 202511 - 3681 registros - COMPLETADO
+[2025-11-04 21:54:41] ✅ CONTROL_CARGAS: Registro exitoso en Control_Cargas_Mensuales
+[2025-11-04 21:54:41] ✅ PROCESAMIENTO EXITOSO: Carga judicial completada. 0 registros insertados. 3681 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 21:54:41] =================== FIN SOLICITUD ===================
+
+[2025-11-04 21:57:09] 🎯 PROCESAR_EXCEL.PHP INICIADO - Usuario: admin
+[2025-11-04 21:57:09] =================== NUEVA SOLICITUD ===================
+[2025-11-04 21:57:09] 🎯 Tipo de archivo: JUDICIAL_BASE
+[2025-11-04 21:57:09] ✅ Archivo guardado: ../../files/uploads/20251104_215709_690a68a59dc18_MAB - TCJ CAR PAGARE al 03-11-2025 - APERTURA.xlsx
+[2025-11-04 21:57:09] 🚀 INICIANDO PROCESAMIENTO JUDICIAL
+[2025-11-04 21:57:26] 📊 Total de filas en Excel: 3682
+[2025-11-04 21:57:26] 📋 Headers encontrados: periodo, juicio_id, contrato, rut, dv, nombre, fecha_asignacion, saldo, cuantia, sucursal, region, comuna, zona, tribunal, rol
+[2025-11-04 21:57:26] 🧹 Limpiando tabla temporal...
+[2025-11-04 21:57:26] 📈 Progreso Judicial: 100/3681 - OK: 100 - Error: 0
+[2025-11-04 21:57:26] 📈 Progreso Judicial: 200/3681 - OK: 200 - Error: 0
+[2025-11-04 21:57:26] 📈 Progreso Judicial: 300/3681 - OK: 300 - Error: 0
+[2025-11-04 21:57:26] 📈 Progreso Judicial: 400/3681 - OK: 400 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 500/3681 - OK: 500 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 600/3681 - OK: 600 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 700/3681 - OK: 700 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 800/3681 - OK: 800 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 900/3681 - OK: 900 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1000/3681 - OK: 1000 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1100/3681 - OK: 1100 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1200/3681 - OK: 1200 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1300/3681 - OK: 1300 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1400/3681 - OK: 1400 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1500/3681 - OK: 1500 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1600/3681 - OK: 1600 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1700/3681 - OK: 1700 - Error: 0
+[2025-11-04 21:57:27] 📈 Progreso Judicial: 1800/3681 - OK: 1800 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 1900/3681 - OK: 1900 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2000/3681 - OK: 2000 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2100/3681 - OK: 2100 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2200/3681 - OK: 2200 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2300/3681 - OK: 2300 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2400/3681 - OK: 2400 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2500/3681 - OK: 2500 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2600/3681 - OK: 2600 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2700/3681 - OK: 2700 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2800/3681 - OK: 2800 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 2900/3681 - OK: 2900 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 3000/3681 - OK: 3000 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 3100/3681 - OK: 3100 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 3200/3681 - OK: 3200 - Error: 0
+[2025-11-04 21:57:28] 📈 Progreso Judicial: 3300/3681 - OK: 3300 - Error: 0
+[2025-11-04 21:57:29] 📈 Progreso Judicial: 3400/3681 - OK: 3400 - Error: 0
+[2025-11-04 21:57:29] 📈 Progreso Judicial: 3500/3681 - OK: 3500 - Error: 0
+[2025-11-04 21:57:29] 📈 Progreso Judicial: 3600/3681 - OK: 3600 - Error: 0
+[2025-11-04 21:57:29] 📊 RESUMEN JUDICIAL: 3681 filas procesadas, 0 filas con error
+[2025-11-04 21:57:29] 📦 Registros en tabla temporal judicial: 3681
+[2025-11-04 21:57:29] ⚙️ Ejecutando SP Judicial con periodo: 202511
+[2025-11-04 21:57:29] 📊 Resultado SP Judicial: {"resultado":"EXITO","mensaje":"Carga judicial completada. 0 registros insertados. 3681 registros movidos a hist\u00f3rico (REEMPLAZO_CARGA_INICIAL).","registros_movidos_historicos":3681,"registros_nuevos":0,"motivo_movimiento":"REEMPLAZO_CARGA_INICIAL"}
+[2025-11-04 21:57:29] 📝 CONTROL_CARGAS: Intentando registrar - JUDICIAL_BASE - 202511 - COMPLETADO
+[2025-11-04 21:57:29] ❌ CONTROL_CARGAS: ERROR al insertar - [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Cannot insert duplicate key row in object 'dbo.Control_Cargas_Mensuales' with unique index 'IX_Control_Cargas_Periodo'. The duplicate key value is (JUDICIAL_BASE, 202511).
+[2025-11-04 21:57:29] ⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa
+[2025-11-04 21:57:29] ✅ PROCESAMIENTO EXITOSO: Carga judicial completada. 0 registros insertados. 3681 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
+[2025-11-04 21:57:29] =================== FIN SOLICITUD ===================
 

@@ -10,10 +10,18 @@ $db->connect();
 header('Content-Type: application/json');
 
 function extraerPeriodoDelNombre($nombre_archivo) {
+    // Para archivos judiciales tipo "MAB - TCJ CAR PAGARE APERTURA 02-10-2025.xlsx"
+    if (preg_match('/(\d{2})-(\d{2})-(\d{4})/', $nombre_archivo, $matches)) {
+        $mes = $matches[2];
+        $año = $matches[3];
+        return $año . $mes; // Retorna 202510
+    }
+    
     // Para archivos tipo "Asignacion 202510 - MAB.xlsx"
     if (preg_match('/(\d{6})/', $nombre_archivo, $matches)) {
         return $matches[1];
     }
+    
     return date('Ym'); // Por defecto, mes actual
 }
 

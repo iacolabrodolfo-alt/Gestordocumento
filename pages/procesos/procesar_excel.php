@@ -168,6 +168,22 @@ function procesarJudicialSimple($archivo_temporal, $nombre_original, $usuario, $
             debug_log("📊 Resultado SP Judicial: " . json_encode($row_sp));
             
             if ($row_sp['resultado'] === 'EXITO') {
+                // 🔥 CORRECCIÓN CRÍTICA: AGREGAR REGISTRO EN CONTROL_CARGAS_MENSUALES PARA JUDICIAL
+                $registro_ok = registrarControlCargaMensual(
+                    'JUDICIAL_BASE', 
+                    $periodo, 
+                    $nombre_original, 
+                    $usuario, 
+                    $total_temporal, 
+                    'COMPLETADO'
+                );
+                
+                if ($registro_ok) {
+                    debug_log("✅ CONTROL_CARGAS: Registro exitoso en Control_Cargas_Mensuales");
+                } else {
+                    debug_log("⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa");
+                }
+                
                 return [
                     'success' => true,
                     'registros_procesados' => $total_temporal,
@@ -183,6 +199,11 @@ function procesarJudicialSimple($archivo_temporal, $nombre_original, $usuario, $
         
     } catch (Exception $e) {
         debug_log("💥 ERROR EN PROCESAMIENTO JUDICIAL: " . $e->getMessage());
+        
+        // 🔥 REGISTRAR ERROR EN CONTROL_CARGAS_MENSUALES PARA JUDICIAL
+        $periodo = extraerPeriodoDelNombre($nombre_original);
+        registrarControlCargaMensual('JUDICIAL_BASE', $periodo, $nombre_original, $usuario, 0, 'ERROR');
+        
         throw $e;
     }
 }
@@ -251,9 +272,25 @@ function procesarAsignacionStock($archivo_temporal, $nombre_original, $usuario, 
                     $filas_procesadas++;
                 } else {
                     $filas_con_error++;
+                    // 🔥 AGREGAR REGISTRO DE ERROR
+                    registrarErrorCarga(
+                        $log_id, 
+                        $fila_procesada['contrato'] ?? 'N/A', 
+                        $fila_procesada['rut'] ?? 'N/A', 
+                        $resultado, // mensaje de error
+                        $fila_procesada
+                    );
                 }
             } else {
                 $filas_con_error++;
+                // 🔥 AGREGAR REGISTRO DE ERROR PARA FILAS NO PROCESADAS
+                registrarErrorCarga(
+                    $log_id, 
+                    'N/A', 
+                    'N/A', 
+                    'Fila no procesada - datos incompletos o inválidos',
+                    $fila // datos originales de la fila
+                );
             }
             
             if ($i % 100 === 0) {
@@ -296,12 +333,29 @@ function procesarAsignacionStock($archivo_temporal, $nombre_original, $usuario, 
             debug_log("📊 Resultado SP Stock: " . json_encode($row_sp));
             
             if ($row_sp['resultado'] === 'EXITO') {
+                // 🔥 AGREGAR REGISTRO EN CONTROL_CARGAS_MENSUALES
+                $registro_ok = registrarControlCargaMensual(
+                    'ASIGNACION_STOCK', 
+                    $periodo, 
+                    $nombre_original, 
+                    $usuario, 
+                    $total_temporal, 
+                    'COMPLETADO'
+                );
+                
+                if ($registro_ok) {
+                    debug_log("✅ CONTROL_CARGAS: Registro exitoso en Control_Cargas_Mensuales");
+                } else {
+                    debug_log("⚠️ CONTROL_CARGAS: No se pudo registrar en Control_Cargas_Mensuales, pero la carga fue exitosa");
+                }
+                
                 return [
                     'success' => true,
                     'registros_procesados' => $total_temporal,
                     'mensaje' => $row_sp['mensaje'],
                     'filas_con_error' => $filas_con_error
                 ];
+            
             } else {
                 throw new Exception("SP Stock reportó error: " . $row_sp['mensaje']);
             }
@@ -311,6 +365,11 @@ function procesarAsignacionStock($archivo_temporal, $nombre_original, $usuario, 
         
     } catch (Exception $e) {
         debug_log("💥 ERROR EN PROCESAMIENTO STOCK: " . $e->getMessage());
+        
+        // 🔥 REGISTRAR ERROR EN CONTROL_CARGAS_MENSUALES
+        $periodo = extraerPeriodoDelNombreStock($nombre_original);
+        registrarControlCargaMensual('ASIGNACION_STOCK', $periodo, $nombre_original, $usuario, 0, 'ERROR');
+        
         throw $e;
     }
 }
@@ -464,6 +523,21 @@ function obtenerTipoCampoStock($columna_bd) {
     return $tipos[$columna_bd] ?? 'string';
 }
 
+function registrarErrorCarga($log_carga_id, $contrato, $rut, $mensaje_error, $datos_fila = null) {
+    global $db;
+    try {
+        $sql = "INSERT INTO Logs_Errores_Carga (log_carga_id, contrato, rut, mensaje_error, datos_fila) 
+                VALUES (?, ?, ?, ?, ?)";
+        $datos_json = $datos_fila ? json_encode($datos_fila) : null;
+        $params = [$log_carga_id, $contrato, $rut, $mensaje_error, $datos_json];
+        $result = $db->secure_query($sql, $params);
+        return $result !== false;
+    } catch (Exception $e) {
+        debug_log("💥 Error registrando error en BD: " . $e->getMessage());
+        return false;
+    }
+}
+
 function procesarFilaStockOriginal($fila, $headers, $archivo_origen, $usuario) {
     $valores = [
         'fecha_carga' => date('Y-m-d H:i:s'),
@@ -488,6 +562,12 @@ function procesarFilaStockOriginal($fila, $headers, $archivo_origen, $usuario) {
         }
     }
     
+    // 🔥 CORRECCIÓN CRÍTICA: Asegurar que 'materno' nunca sea NULL
+    if (!isset($valores['materno']) || $valores['materno'] === null || $valores['materno'] === '') {
+        $valores['materno'] = ''; // Asignar string vacío en lugar de NULL
+        debug_log("🔧 STOCK - Campo 'materno' vacío, asignando string vacío");
+    }
+    
     // VALIDACIÓN CAMPOS OBLIGATORIOS STOCK
     $campos_obligatorios = ['periodo_proceso', 'contrato', 'rut', 'dv', 'nombre'];
     foreach ($campos_obligatorios as $campo) {
@@ -498,6 +578,35 @@ function procesarFilaStockOriginal($fila, $headers, $archivo_origen, $usuario) {
     }
     
     return $valores;
+}
+
+function registrarControlCargaMensual($tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado) {
+    global $db;
+    
+    debug_log("📝 CONTROL_CARGAS: Intentando registrar - $tipo_archivo - $periodo - $estado");
+    
+    try {
+        $sql = "INSERT INTO Control_Cargas_Mensuales 
+                (tipo_archivo, periodo, archivo_origen, usuario_carga, registros_procesados, estado, fecha_carga, fecha_creacion) 
+                VALUES (?, ?, ?, ?, ?, ?, GETDATE(), GETDATE())";
+        
+        $params = [$tipo_archivo, $periodo, $archivo_origen, $usuario_carga, $registros_procesados, $estado];
+        $result = $db->secure_query($sql, $params);
+        
+        if ($result) {
+            debug_log("✅ CONTROL_CARGAS: REGISTRADO EXITOSAMENTE - $tipo_archivo - $periodo - $registros_procesados registros - $estado");
+            return true;
+        } else {
+            $errors = sqlsrv_errors();
+            $error_msg = $errors ? $errors[0]['message'] : 'Error desconocido';
+            debug_log("❌ CONTROL_CARGAS: ERROR al insertar - " . $error_msg);
+            return false;
+        }
+        
+    } catch (Exception $e) {
+        debug_log("💥 CONTROL_CARGAS: EXCEPCIÓN - " . $e->getMessage());
+        return false;
+    }
 }
 
 function limpiarValorStock($valor, $tipo_campo = 'string') {
@@ -558,11 +667,22 @@ function insertarFilaTemporalStock($fila_procesada) {
         
         $result = $db->secure_query($sql, $params);
         
-        return $result !== false;
+        if ($result) {
+            return true;
+        } else {
+            // 🔥 DEVOLVER MENSAJE DE ERROR ESPECÍFICO
+            $errors = sqlsrv_errors();
+            $error_msg = "Error SQL desconocido";
+            if ($errors) {
+                $error_msg = $errors[0]['message'];
+            }
+            return $error_msg;
+        }
         
     } catch (Exception $e) {
-        debug_log("💥 Error insertando fila stock: " . $e->getMessage());
-        return false;
+        $error_msg = "EXCEPCIÓN: " . $e->getMessage();
+        debug_log("💥 Error insertando fila stock: " . $error_msg);
+        return $error_msg;
     }
 }
 
