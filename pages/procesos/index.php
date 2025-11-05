@@ -162,6 +162,11 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                                 <i class="bi bi-file-earmark-spreadsheet me-2"></i>Carga Excel
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="consolidar_maestro.php">
+                                <i class="bi bi-database-check me-2"></i>Consolidación Maestro
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

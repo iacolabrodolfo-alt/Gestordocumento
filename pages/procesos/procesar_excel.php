@@ -960,6 +960,84 @@ function insertarFilaTemporalJudicial($fila_procesada) {
     }
 }
 
+// Función para ejecutar consolidación Maestro
+function ejecutarConsolidacionMaestro($usuario = null) {
+    global $db;
+    
+    if (!$usuario) {
+        $usuario = $_SESSION['username'] ?? 'SISTEMA';
+    }
+    
+    debug_log("🔄 INICIANDO CONSOLIDACIÓN MAESTRO - Usuario: " . $usuario);
+    
+    try {
+        $sql = "EXEC sp_ConsolidarMaestro @UsuarioProceso = ?";
+        $params = [$usuario];
+        
+        $result = $db->secure_query($sql, $params);
+        
+        if ($result && sqlsrv_has_rows($result)) {
+            $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+            
+            if ($row['resultado'] === 'EXITO') {
+                debug_log("✅ CONSOLIDACIÓN MAESTRO EXITOSA: " . $row['mensaje']);
+                return [
+                    'success' => true,
+                    'mensaje' => $row['mensaje'],
+                    'registros' => $row['registros_procesados']
+                ];
+            } else {
+                throw new Exception($row['mensaje']);
+            }
+        } else {
+            throw new Exception("No se pudo obtener resultado del SP de consolidación");
+        }
+        
+    } catch (Exception $e) {
+        debug_log("💥 ERROR EN CONSOLIDACIÓN MAESTRO: " . $e->getMessage());
+        throw $e;
+    }
+}
+
+// Función para ejecutar backup diario
+function ejecutarBackupMaestro($usuario = null) {
+    global $db;
+    
+    if (!$usuario) {
+        $usuario = $_SESSION['username'] ?? 'SISTEMA';
+    }
+    
+    debug_log("💾 INICIANDO BACKUP MAESTRO - Usuario: " . $usuario);
+    
+    try {
+        $sql = "EXEC sp_BackupMaestroDiario @UsuarioProceso = ?";
+        $params = [$usuario];
+        
+        $result = $db->secure_query($sql, $params);
+        
+        if ($result && sqlsrv_has_rows($result)) {
+            $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+            
+            if ($row['resultado'] === 'EXITO') {
+                debug_log("✅ BACKUP MAESTRO EXITOSO: " . $row['mensaje']);
+                return [
+                    'success' => true,
+                    'mensaje' => $row['mensaje'],
+                    'registros' => $row['registros_backup']
+                ];
+            } else {
+                throw new Exception($row['mensaje']);
+            }
+        } else {
+            throw new Exception("No se pudo obtener resultado del SP de backup");
+        }
+        
+    } catch (Exception $e) {
+        debug_log("💥 ERROR EN BACKUP MAESTRO: " . $e->getMessage());
+        throw $e;
+    }
+}
+
 // =============================================
 // PROCESAMIENTO PRINCIPAL
 // =============================================
