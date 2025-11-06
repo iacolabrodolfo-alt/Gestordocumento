@@ -3,6 +3,7 @@ require_once '../../includes/auth.php';
 $auth = new Auth();
 $auth->require_auth();
 
+require_once '../../config/database.php';
 $db = new Database();
 $db->connect();
 
@@ -10,51 +11,89 @@ $mensaje = '';
 $mensaje_tipo = '';
 $resultado = null;
 
-// Procesar generación del archivo
-if ($_POST['action'] ?? '' === 'generar_archivo200') {
-    $fecha_procesamiento = $_POST['fecha_procesamiento'] ?? date('Y-m-d');
-    $usuario = $_SESSION['username'];
-    
+// Obtener fechas disponibles con gestiones
+function obtenerFechasDisponibles($db) {
+    $fechas = [];
     try {
-        // Llamar al stored procedure
-        $sql = "EXEC sp_GenerarArchivo200 @FechaProcesamiento = ?, @Usuario = ?";
-        $params = array($fecha_procesamiento, $usuario);
-        
-        $stmt = $db->secure_query($sql, $params);
+        $sql = "SELECT DISTINCT fecha_procesamiento 
+                FROM Gestiones_Diarias 
+                WHERE estado = 'ACTIVO' 
+                ORDER BY fecha_procesamiento DESC";
+        $stmt = $db->secure_query($sql);
         
         if ($stmt) {
-            $resultado = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            while ($fila = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $fecha = $fila['fecha_procesamiento'];
+                if ($fecha instanceof DateTime) {
+                    $fechas[] = $fecha->format('Y-m-d');
+                } else {
+                    $fechas[] = date('Y-m-d', strtotime($fecha));
+                }
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Error obteniendo fechas disponibles: " . $e->getMessage());
+    }
+    return $fechas;
+}
+
+$fechas_disponibles = obtenerFechasDisponibles($db);
+
+// Procesar generación del archivo
+if ($_POST['action'] ?? '' === 'generar_archivo200') {
+    $fecha_procesamiento = $_POST['fecha_procesamiento'] ?? '';
+    $usuario = $_SESSION['username'];
+    
+    // Validar fecha
+    if (empty($fecha_procesamiento)) {
+        $mensaje = "Error: Debe seleccionar una fecha";
+        $mensaje_tipo = 'danger';
+    } else {
+        try {
+            // Llamar al stored procedure
+            $sql = "EXEC sp_GenerarArchivo200 @FechaProcesamiento = ?, @Usuario = ?";
+            $params = array($fecha_procesamiento, $usuario);
             
-            if ($resultado && $resultado['resultado'] === 'EXITO') {
-                $mensaje = $resultado['mensaje'] . " - Registros: " . $resultado['registros_generados'];
-                $mensaje_tipo = 'success';
+            $stmt = $db->secure_query($sql, $params);
+            
+            if ($stmt) {
+                $resultado = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
                 
-                // Aquí podríamos generar el archivo físico .txt
-                generarArchivoTXT($fecha_procesamiento, $db);
-                
+                if ($resultado && $resultado['resultado'] === 'EXITO') {
+                    $mensaje = $resultado['mensaje'];
+                    $mensaje_tipo = 'success';
+                    
+                    // Generar archivo físico .txt
+                    $archivo_generado = generarArchivoTXT($fecha_procesamiento, $db);
+                    
+                    if ($archivo_generado) {
+                        $mensaje .= " | Archivo: " . $archivo_generado['nombre_archivo'] . 
+                                   " (" . $archivo_generado['lineas_generadas'] . " líneas)";
+                    }
+                    
+                } else {
+                    $mensaje = $resultado['mensaje'] ?? 'Error desconocido al generar archivo';
+                    $mensaje_tipo = 'danger';
+                }
             } else {
-                $mensaje = $resultado['mensaje'] ?? 'Error desconocido al generar archivo';
+                $mensaje = "Error al ejecutar el stored procedure";
                 $mensaje_tipo = 'danger';
             }
-        } else {
-            $mensaje = "Error al ejecutar el stored procedure";
+            
+        } catch (Exception $e) {
+            $mensaje = "Excepción: " . $e->getMessage();
             $mensaje_tipo = 'danger';
         }
-        
-    } catch (Exception $e) {
-        $mensaje = "Excepción: " . $e->getMessage();
-        $mensaje_tipo = 'danger';
     }
 }
 
 // Función para generar archivo .txt físico
-// Función para generar archivo .txt físico CON FORMATO EXACTO
 function generarArchivoTXT($fecha, $db) {
     $ruta_archivos = "../../files/archivo200/";
     
     // Crear directorio si no existe
     if (!is_dir($ruta_archivos)) {
-        mkdir($ruta_archivos, 0777, true);
+        mkdir($ruta_archivos, 0775, true);
     }
     
     // Formatear fecha para el nombre del archivo (DDMMYYYY)
@@ -67,8 +106,8 @@ function generarArchivoTXT($fecha, $db) {
         campo_1_3,
         campo_4,
         campo_5_29,
-        campo_30_46, -- Ahora es VARCHAR(17) con formato 'DDMMYYYY HH:MM:SS'
-        RIGHT('000' + CAST(campo_47_49 AS VARCHAR(3)), 3) as campo_47_49,
+        campo_30_46,
+        campo_47_49,
         campo_50_51,
         campo_52_53,
         campo_54_55,
@@ -87,29 +126,29 @@ function generarArchivoTXT($fecha, $db) {
         
         if ($archivo) {
             while ($fila = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                // Construir cada campo con longitud EXACTA según el formato real
-                $campo_1_3   = str_pad($fila['campo_1_3'] ?? '200', 3, ' ', STR_PAD_RIGHT);                    // 1-3
-                $campo_4     = str_pad($fila['campo_4'] ?? '6', 1, ' ', STR_PAD_RIGHT);                        // 4
-                $campo_5_29  = str_pad($fila['campo_5_29'] ?? '', 25, ' ', STR_PAD_RIGHT);                     // 5-29
-                $campo_30_46 = str_pad($fila['campo_30_46'] ?? date('dmY H:i:s'), 17, ' ', STR_PAD_RIGHT);     // 30-46 (¡FORMATO DDMMYYYY HH:MM:SS!)
-                $campo_47_49 = str_pad($fila['campo_47_49'] ?? '001', 3, '0', STR_PAD_LEFT);                   // 47-49
-                $campo_50_51 = str_pad($fila['campo_50_51'] ?? '3N', 2, ' ', STR_PAD_RIGHT);                   // 50-51
-                $campo_52_53 = str_pad($fila['campo_52_53'] ?? '1', 2, ' ', STR_PAD_RIGHT);                    // 52-53
-                $campo_54_55 = str_pad($fila['campo_54_55'] ?? '  ', 2, ' ', STR_PAD_RIGHT);                   // 54-55 (normalmente espacios)
-                $campo_56_63 = str_pad($fila['campo_56_63'] ?? 'exmabdis', 8, ' ', STR_PAD_RIGHT);             // 56-63
-                $campo_64_119 = str_pad($fila['campo_64_119'] ?? '', 56, ' ', STR_PAD_RIGHT);                  // 64-119
+                // Construir cada campo con longitud EXACTA
+                $campo_1_3   = str_pad($fila['campo_1_3'] ?? '200', 3, ' ', STR_PAD_RIGHT);
+                $campo_4     = str_pad($fila['campo_4'] ?? '6', 1, ' ', STR_PAD_RIGHT);
+                $campo_5_29  = str_pad($fila['campo_5_29'] ?? '', 25, ' ', STR_PAD_RIGHT);
+                $campo_30_46 = str_pad($fila['campo_30_46'] ?? date('dmY H:i:s'), 17, ' ', STR_PAD_RIGHT);
+                
+                // Campo 47-49: numérico, formatear a 3 dígitos
+                $campo_47_49_valor = $fila['campo_47_49'] ?? 1;
+                $campo_47_49 = str_pad((string)$campo_47_49_valor, 3, '0', STR_PAD_LEFT);
+                
+                $campo_50_51 = str_pad($fila['campo_50_51'] ?? '3N', 2, ' ', STR_PAD_RIGHT);
+                $campo_52_53 = str_pad($fila['campo_52_53'] ?? '1', 2, ' ', STR_PAD_RIGHT);
+                $campo_54_55 = str_pad($fila['campo_54_55'] ?? '  ', 2, ' ', STR_PAD_RIGHT);
+                $campo_56_63 = str_pad($fila['campo_56_63'] ?? 'exmabdis', 8, ' ', STR_PAD_RIGHT);
+                $campo_64_119 = str_pad($fila['campo_64_119'] ?? '', 56, ' ', STR_PAD_RIGHT);
                 
                 // Unir todos los campos
                 $linea = $campo_1_3 . $campo_4 . $campo_5_29 . $campo_30_46 . 
                          $campo_47_49 . $campo_50_51 . $campo_52_53 . $campo_54_55 . 
                          $campo_56_63 . $campo_64_119;
                 
-                // Verificar longitud (debe ser exactamente 119 caracteres)
-                $longitud = strlen($linea);
-                if ($longitud !== 119) {
-                    error_log("ADVERTENCIA: Línea con longitud {$longitud}, ajustando a 119");
-                    $linea = str_pad($linea, 119, ' ', STR_PAD_RIGHT);
-                }
+                // Ajustar a 119 caracteres exactos
+                $linea = str_pad($linea, 119, ' ', STR_PAD_RIGHT);
                 
                 fwrite($archivo, $linea . PHP_EOL);
                 $lineas_generadas++;
@@ -117,8 +156,11 @@ function generarArchivoTXT($fecha, $db) {
             
             fclose($archivo);
             
-            $GLOBALS['mensaje'] .= " | Archivo: {$nombre_archivo} ({$lineas_generadas} líneas)";
-            return $nombre_archivo;
+            return [
+                'nombre_archivo' => $nombre_archivo,
+                'lineas_generadas' => $lineas_generadas,
+                'ruta_completa' => $ruta_completa
+            ];
             
         } else {
             throw new Exception("No se pudo crear el archivo físico");
@@ -180,6 +222,11 @@ function generarArchivoTXT($fecha, $db) {
                                 <i class="bi bi-file-earmark-spreadsheet me-2"></i>Carga Excel
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="gestiones.php">
+                                <i class="bi bi-chat-dots me-2"></i>Gestiones Diarias
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -224,10 +271,21 @@ function generarArchivoTXT($fecha, $db) {
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label class="form-label">Fecha de Procesamiento</label>
-                                                <input type="date" class="form-control" name="fecha_procesamiento" 
-                                                       value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>">
-                                                <small class="form-text text-muted">Selecciona la fecha para la cual generar el archivo</small>
+                                                <label class="form-label">Fecha de Procesamiento *</label>
+                                                <select class="form-select" name="fecha_procesamiento" required>
+                                                    <option value="">-- Seleccionar fecha --</option>
+                                                    <?php foreach ($fechas_disponibles as $fecha): 
+                                                        $fecha_formateada = date('d/m/Y', strtotime($fecha));
+                                                        $selected = ($fecha == date('Y-m-d')) ? 'selected' : '';
+                                                    ?>
+                                                        <option value="<?php echo $fecha; ?>" <?php echo $selected; ?>>
+                                                            <?php echo $fecha_formateada; ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <small class="form-text text-muted">
+                                                    Fechas disponibles con gestiones cargadas
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -242,10 +300,11 @@ function generarArchivoTXT($fecha, $db) {
                                     <div class="alert alert-info">
                                         <h6><i class="bi bi-info-circle me-2"></i>Información importante:</h6>
                                         <ul class="mb-0">
-                                            <li>El archivo se generará en formato TXT según especificación</li>
-                                            <li>Los archivos deben subirse antes de las 21:30 hrs</li>
-                                            <li>Se eliminarán tildes y caracteres especiales automáticamente</li>
-                                            <li>El archivo se guardará en /files/archivo200/</li>
+                                            <li>Seleccione la fecha para la cual generar el Archivo 200</li>
+                                            <li>Solo se muestran fechas que tienen gestiones cargadas</li>
+                                            <li>El archivo se generará con el nombre: <strong>MAB_200_DDMMYYYY.txt</strong></li>
+                                            <li>Los archivos se guardan en: <strong>/files/archivo200/</strong></li>
+                                            <li>El archivo contendrá los datos reales de las gestiones diarias</li>
                                         </ul>
                                     </div>
 
@@ -267,9 +326,46 @@ function generarArchivoTXT($fecha, $db) {
                             </div>
                             <div class="card-body">
                                 <div class="list-group list-group-flush">
-                                    <div class="list-group-item bg-transparent">
-                                        <small class="text-muted">No hay ejecuciones recientes</small>
-                                    </div>
+                                    <?php
+                                    // Obtener últimas ejecuciones
+                                    try {
+                                        $sql_ultimas = "SELECT TOP 5 fecha_procesamiento, usuario_creacion, 
+                                                       (SELECT COUNT(*) FROM Archivo_200 a2 
+                                                        WHERE a2.fecha_procesamiento = a.fecha_procesamiento 
+                                                        AND a2.estado = 'PROCESADO') as registros
+                                                FROM Archivo_200 a
+                                                WHERE estado = 'PROCESADO'
+                                                GROUP BY fecha_procesamiento, usuario_creacion
+                                                ORDER BY fecha_procesamiento DESC";
+                                        $stmt_ultimas = $db->secure_query($sql_ultimas);
+                                        
+                                        if ($stmt_ultimas && sqlsrv_has_rows($stmt_ultimas)) {
+                                            while ($fila = sqlsrv_fetch_array($stmt_ultimas, SQLSRV_FETCH_ASSOC)) {
+                                                $fecha_ejec = $fila['fecha_procesamiento'];
+                                                if ($fecha_ejec instanceof DateTime) {
+                                                    $fecha_formateada = $fecha_ejec->format('d/m/Y');
+                                                } else {
+                                                    $fecha_formateada = date('d/m/Y', strtotime($fecha_ejec));
+                                                }
+                                                echo '<div class="list-group-item bg-transparent">';
+                                                echo '<div class="d-flex w-100 justify-content-between">';
+                                                echo '<small class="text-primary">' . $fecha_formateada . '</small>';
+                                                echo '<span class="badge bg-success">' . $fila['registros'] . ' reg.</span>';
+                                                echo '</div>';
+                                                echo '<small class="text-muted">' . htmlspecialchars($fila['usuario_creacion']) . '</small>';
+                                                echo '</div>';
+                                            }
+                                        } else {
+                                            echo '<div class="list-group-item bg-transparent text-center">';
+                                            echo '<small class="text-muted">No hay ejecuciones recientes</small>';
+                                            echo '</div>';
+                                        }
+                                    } catch (Exception $e) {
+                                        echo '<div class="list-group-item bg-transparent text-center">';
+                                        echo '<small class="text-muted">Error cargando historial</small>';
+                                        echo '</div>';
+                                    }
+                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -282,17 +378,40 @@ function generarArchivoTXT($fecha, $db) {
                             </div>
                             <div class="card-body">
                                 <small>
-                                    <strong>Estructura:</strong><br>
+                                    <strong>Estructura (119 caracteres):</strong><br>
                                     1-3: '200'<br>
                                     4: Grupo (3/6)<br>
-                                    5-29: No. Caso<br>
-                                    30-46: Fecha<br>
-                                    47-49: Secuencia<br>
+                                    5-29: No. Caso (25 chars)<br>
+                                    30-46: Fecha DDMMYYYY HH:MM:SS<br>
+                                    47-49: Secuencia (3 dígitos)<br>
                                     50-51: Cód. Acción<br>
                                     52-53: Cód. Resultado<br>
                                     54-55: Cód. Carta<br>
-                                    56-63: Gestor<br>
-                                    64-119: Comentario
+                                    56-63: Gestor (8 chars)<br>
+                                    64-119: Teléfono + Comentario (56 chars)
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>Fechas Disponibles
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <small>
+                                    <strong>Gestiones cargadas para:</strong><br>
+                                    <?php if (!empty($fechas_disponibles)): ?>
+                                        <?php foreach (array_slice($fechas_disponibles, 0, 5) as $fecha): ?>
+                                            • <?php echo date('d/m/Y', strtotime($fecha)); ?><br>
+                                        <?php endforeach; ?>
+                                        <?php if (count($fechas_disponibles) > 5): ?>
+                                            <em>... y <?php echo count($fechas_disponibles) - 5; ?> más</em>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <em>No hay gestiones cargadas</em>
+                                    <?php endif; ?>
                                 </small>
                             </div>
                         </div>

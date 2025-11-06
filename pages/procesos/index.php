@@ -167,6 +167,11 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                                 <i class="bi bi-database-check me-2"></i>Consolidación Maestro
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="gestiones.php">
+                                <i class="bi bi-chat-dots me-2"></i>Gestiones Diarias
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
