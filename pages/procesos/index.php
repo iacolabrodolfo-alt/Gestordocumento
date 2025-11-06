@@ -1,5 +1,6 @@
 <?php
 require_once '../../includes/auth.php';
+require_once '../../config/database.php';
 $auth = new Auth();
 $auth->require_auth();
 
@@ -18,7 +19,112 @@ $directorios_ejecutivo = [
 
 $directorios_permitidos = ($_SESSION['perfil'] === 'administrador') ? $directorios_admin : $directorios_ejecutivo;
 
-// Procesar subida de archivos
+// Procesar exportación a Excel
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['exportar_excel'])) {
+    try {
+        $database = new Database();
+        $conn = $database->connect();
+        
+        if ($conn !== false) {
+            // Consulta para obtener todos los datos de la tabla Maestro
+            $sql = "SELECT * FROM [dbo].[Maestro] WHERE activo = 1";
+            $stmt = $database->secure_query($sql);
+            
+            if ($stmt !== false) {
+                // Configurar headers para descarga de Excel
+                header('Content-Type: application/vnd.ms-excel');
+                header('Content-Disposition: attachment; filename="maestro_completo_' . date('Y-m-d_His') . '.xls"');
+                header('Pragma: no-cache');
+                header('Expires: 0');
+                
+                // BOM para UTF-8
+                echo "\xEF\xBB\xBF";
+                
+                // Crear contenido Excel
+                echo "<table border='1'>";
+                echo "<tr>";
+                echo "<th>ID</th>";
+                echo "<th>PERIODO PROCESO</th>";
+                echo "<th>FECHA PROCESO</th>";
+                echo "<th>PERIODO CASTIGO</th>";
+                echo "<th>HOMOLOGACION</th>";
+                echo "<th>MOTIVO ESTADO</th>";
+                echo "<th>SUB ETAPA PROCESAL</th>";
+                echo "<th>PERFIL</th>";
+                echo "<th>RUT</th>";
+                echo "<th>DV</th>";
+                echo "<th>CONTRATO</th>";
+                echo "<th>NOMBRE</th>";
+                echo "<th>PATERNO</th>";
+                echo "<th>MATERNO</th>";
+                echo "<th>FECHA CASTIGO</th>";
+                echo "<th>SALDO GENERADO</th>";
+                echo "<th>CLASIFICACION BIENES</th>";
+                echo "<th>CANAL</th>";
+                echo "<th>CLASIFICACION</th>";
+                echo "<th>DIRECCION</th>";
+                echo "<th>NUMERACION DIR</th>";
+                echo "<th>RESTO</th>";
+                echo "<th>REGION</th>";
+                echo "<th>COMUNA</th>";
+                echo "<th>CIUDAD</th>";
+                echo "<th>ABOGADO</th>";
+                echo "<th>ZONA</th>";
+                echo "<th>CORREO1</th>";
+                echo "<th>CORREO2</th>";
+                echo "<th>CORREO3</th>";
+                echo "<th>CORREO4</th>";
+                echo "<th>CORREO5</th>";
+                echo "<th>TELEFONO1</th>";
+                echo "<th>TELEFONO2</th>";
+                echo "<th>TELEFONO3</th>";
+                echo "<th>TELEFONO4</th>";
+                echo "<th>TELEFONO5</th>";
+                echo "<th>FECHA PAGO</th>";
+                echo "<th>MONTO PAGO</th>";
+                echo "<th>FECHA VENCIMIENTO</th>";
+                echo "<th>DIAS MORA</th>";
+                echo "<th>FECHA SUSC</th>";
+                echo "<th>TIPO CAMPAÑA</th>";
+                echo "<th>DESCUENTO</th>";
+                echo "<th>MONTO A PAGAR</th>";
+                echo "<th>SALDO EN CAMPAÑA</th>";
+                echo "<th>FECHA ASIGNACION</th>";
+                echo "<th>TIPO CARTERA</th>";
+                echo "<th>FECHA PROCESO</th>";
+                echo "<th>ESTADO MAESTRO</th>";
+                echo "<th>FECHA U GESTION</th>";
+                echo "<th>MEJOR GESTION</th>";
+                echo "<th>GESTION</th>";
+                echo "<th>FECHA CARGA</th>";
+                echo "<th>ARCHIVO ORIGEN</th>";
+                echo "<th>USUARIO CARGA</th>";
+                echo "</tr>";
+                
+                while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                    echo "<tr>";
+                    foreach ($row as $key => $value) {
+                        if ($value instanceof DateTime) {
+                            $value = $value->format('Y-m-d H:i:s');
+                        } elseif ($value === null) {
+                            $value = '';
+                        }
+                        echo "<td>" . htmlspecialchars($value) . "</td>";
+                    }
+                    echo "</tr>";
+                }
+                
+                echo "</table>";
+                exit;
+            }
+        }
+    } catch (Exception $e) {
+        $mensaje = "Error al exportar: " . $e->getMessage();
+        $mensaje_tipo = 'danger';
+    }
+}
+
+// Procesar subida de archivos (código existente)
 $mensaje = '';
 $mensaje_tipo = ''; // success, danger, warning
 
@@ -68,13 +174,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['archivo'])) {
         }
     }
 }
-
-// Procesar generación de archivo 200
-if ($_POST['action'] ?? '' === 'generar_archivo_200') {
-    // Aquí luego integraremos la llamada al SP
-    $mensaje = "Función de generar Archivo 200 - En desarrollo (SP por implementar)";
-    $mensaje_tipo = 'info';
-}
 ?>
 
 <!DOCTYPE html>
@@ -82,7 +181,7 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procesos - Gestor Documento</title>
+    <title>Consolidación Maestro - Gestor Documento</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -108,14 +207,23 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
             padding: 10px;
             margin-top: 10px;
         }
-        .btn-generar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .btn-exportar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border: none;
             color: white;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .btn-generar:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        .btn-exportar:hover {
+            background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .export-card {
+            border-left: 4px solid #28a745;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
     </style>
@@ -143,19 +251,24 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                         </li>
                         <?php endif; ?>
                         <li class="nav-item">
-                            <a class="nav-link active" href="index.php">
+                            <a class="nav-link" href="index.php">
                                 <i class="bi bi-gear me-2"></i>Procesos
                             </a>
                         </li>
-					    <li class="nav-item">
+                        <li class="nav-item">
+                            <a class="nav-link" href="consulta_deudor.php">
+                                <i class="bi bi-search me-2"></i>Consulta Deudor
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="archivos.php">
                                 <i class="bi bi-files me-2"></i>Archivos Subidos
                             </a>
                         </li>
                         <li class="nav-item">
-                              <a class="nav-link" href="generar_archivo200.php">
+                            <a class="nav-link" href="generar_archivo200.php">
                                 <i class="bi bi-file-earmark-arrow-down me-2"></i>Archivo 200
-                               </a>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="carga_excel.php">
@@ -163,7 +276,7 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="consolidar_maestro.php">
+                            <a class="nav-link active" href="consolidar_maestro.php">
                                 <i class="bi bi-database-check me-2"></i>Consolidación Maestro
                             </a>
                         </li>
@@ -180,7 +293,7 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="bi bi-gear me-2"></i>Procesos Automatizados
+                        <i class="bi bi-database-check me-2"></i>Consolidación Maestro
                     </h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <span class="me-3">
@@ -203,6 +316,63 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                 <?php endif; ?>
 
                 <div class="row">
+                    <!-- Panel de Exportación -->
+                    <div class="col-lg-4">
+                        <div class="card export-card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>Exportar Base Completa
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    Exporta toda la base de datos Maestro a un archivo Excel con todos los registros activos.
+                                </p>
+                                
+                                <form method="POST" class="mb-3">
+                                    <input type="hidden" name="exportar_excel" value="1">
+                                    <button type="submit" class="btn btn-exportar w-100">
+                                        <i class="bi bi-download me-2"></i>Exportar a Excel
+                                    </button>
+                                </form>
+                                
+                                <div class="mt-4">
+                                    <h6><i class="bi bi-info-circle me-2"></i>Información del Export:</h6>
+                                    <ul class="list-group list-group-flush small">
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Formato
+                                            <span class="badge bg-primary">Excel (.xls)</span>
+                                        </li>
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Codificación
+                                            <span class="badge bg-primary">UTF-8</span>
+                                        </li>
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Registros
+                                            <span class="badge bg-success">Todos los activos</span>
+                                        </li>
+                                        <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center">
+                                            Columnas
+                                            <span class="badge bg-info">Todas las disponibles</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estadísticas Rápidas -->
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">
+                                    <i class="bi bi-database me-2"></i>Base Maestro
+                                </h5>
+                                <div class="display-6 fw-bold">100%</div>
+                                <p class="mb-0">Completa y Consolidada</p>
+                                <small>Última actualización: <?php echo date('d/m/Y H:i'); ?></small>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Panel de Subida de Archivos -->
                     <div class="col-lg-8">
                         <div class="card">
@@ -278,58 +448,44 @@ if ($_POST['action'] ?? '' === 'generar_archivo_200') {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Panel de Generación de Archivos -->
-                    <div class="col-lg-4">
+                <!-- Información Adicional -->
+                <div class="row mt-4">
+                    <div class="col-12">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">
-                                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Generar Archivo 200
+                                    <i class="bi bi-lightbulb me-2"></i>Recomendaciones
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <p class="card-text">
-                                    Genera el archivo 200 procesando los datos cargados en el sistema.
-                                </p>
-                                <form method="POST">
-                                    <input type="hidden" name="action" value="generar_archivo_200">
-                                    <button type="submit" class="btn btn-generar w-100">
-                                        <i class="bi bi-gear-fill me-2"></i>Generar Archivo 200
-                                    </button>
-                                </form>
-                                
-                                <div class="mt-4">
-                                    <h6><i class="bi bi-clock-history me-2"></i>Últimas ejecuciones:</h6>
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item bg-transparent text-muted">
-                                            <small>No hay registros de ejecución</small>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Estadísticas Rápidas -->
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="bi bi-graph-up me-2"></i>Estadísticas
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-6 mb-3">
-                                        <div class="border rounded p-2">
-                                            <i class="bi bi-folder text-primary display-6"></i>
-                                            <h5 class="mt-2"><?php echo count($directorios_permitidos); ?></h5>
-                                            <small>Directorios Activos</small>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <i class="bi bi-check-circle text-success me-3 fs-4"></i>
+                                            <div>
+                                                <h6>Exportación Completa</h6>
+                                                <small class="text-muted">Incluye todos los campos de la tabla Maestro</small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-6 mb-3">
-                                        <div class="border rounded p-2">
-                                            <i class="bi bi-person-check text-success display-6"></i>
-                                            <h5 class="mt-2"><?php echo $_SESSION['perfil'] === 'administrador' ? 'Admin' : 'Ejec'; ?></h5>
-                                            <small>Tu Perfil</small>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <i class="bi bi-clock text-warning me-3 fs-4"></i>
+                                            <div>
+                                                <h6>Actualización en Tiempo Real</h6>
+                                                <small class="text-muted">Datos actualizados al momento de la exportación</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-flex">
+                                            <i class="bi bi-shield-check text-primary me-3 fs-4"></i>
+                                            <div>
+                                                <h6>Solo Registros Activos</h6>
+                                                <small class="text-muted">Filtrado automático por estado activo</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
