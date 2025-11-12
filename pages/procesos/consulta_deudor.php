@@ -259,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rut'])) {
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>Dashboard
                             </a>
                         </li>
                         <?php if ($_SESSION['perfil'] === 'administrador'): ?>
@@ -270,38 +270,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rut'])) {
                         </li>
                         <?php endif; ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="index.php">
-                                <i class="bi bi-gear me-2"></i>Procesos
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link active" href="consulta_deudor.php">
                                 <i class="bi bi-search me-2"></i>Consulta Deudor
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="archivos.php">
-                                <i class="bi bi-files me-2"></i>Archivos Subidos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="generar_archivo200.php">
-                                <i class="bi bi-file-earmark-arrow-down me-2"></i>Archivo 200
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="carga_excel.php">
-                                <i class="bi bi-file-earmark-spreadsheet me-2"></i>Carga Excel
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="consolidar_maestro.php">
-                                <i class="bi bi-database-check me-2"></i>Consolidación Maestro
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="gestiones.php">
-                                <i class="bi bi-chat-dots me-2"></i>Gestiones Diarias
+                                                <li class="nav-item">
+                            <a class="nav-link" href="index.php">
+                                <i class="bi bi-gear me-2"></i>Procesos
                             </a>
                         </li>
                     </ul>

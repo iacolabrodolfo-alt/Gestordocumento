@@ -124,7 +124,7 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>Inicio
                             </a>
                         </li>
                         <li class="nav-item">
@@ -135,11 +135,6 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">
                                 <i class="bi bi-gear me-2"></i>Procesos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="archivos.php">
-                                <i class="bi bi-files me-2"></i>Archivos Subidos
                             </a>
                         </li>
                         <li class="nav-item">
@@ -206,7 +201,6 @@ function guardarRegistroCarga($tipo, $nombre_archivo, $nombre_original, $usuario
                                                     <option value="">-- Seleccionar tipo --</option>
                                                     <option value="ASIGNACION_STOCK">Asignación Stock Mensual</option>
                                                     <option value="JUDICIAL_BASE">Judicial - Hoja BASE</option>
-                                                    <option value="JUDICIAL_EXCLUIDOS">Judicial - Hoja EXCLUIDOS</option>
                                                 </select>
                                             </div>
                                         </div>

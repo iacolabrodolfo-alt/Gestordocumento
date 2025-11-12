@@ -179,7 +179,7 @@ if ($stmt) {
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>Inicio
                             </a>
                         </li>
                         <li class="nav-item">

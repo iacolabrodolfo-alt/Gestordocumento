@@ -39,6 +39,7 @@ function obtenerFechasDisponibles($db) {
 
 $fechas_disponibles = obtenerFechasDisponibles($db);
 
+
 // Procesar generación del archivo
 if ($_POST['action'] ?? '' === 'generar_archivo200') {
     $fecha_procesamiento = $_POST['fecha_procesamiento'] ?? '';
@@ -59,6 +60,7 @@ if ($_POST['action'] ?? '' === 'generar_archivo200') {
             if ($stmt) {
                 $resultado = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
                 
+                // CORRECCIÓN AQUÍ: Usar los nombres correctos de campos
                 if ($resultado && $resultado['resultado'] === 'EXITO') {
                     $mensaje = $resultado['mensaje'];
                     $mensaje_tipo = 'success';
@@ -68,8 +70,16 @@ if ($_POST['action'] ?? '' === 'generar_archivo200') {
                     
                     if ($archivo_generado) {
                         $mensaje .= " | Archivo: " . $archivo_generado['nombre_archivo'] . 
-                                   " (" . $archivo_generado['lineas_generadas'] . " líneas)";
+                                " (" . $archivo_generado['lineas_generadas'] . " líneas)";
                     }
+                    
+                    // CORRECCIÓN: Usar los nombres correctos de campos del SP
+                    $mensaje .= "<br><small class='text-muted'>";
+                    $mensaje .= "Casos 013+MG: " . ($resultado['casos_013_mg'] ?? 0) . " | ";
+                    $mensaje .= "13MG: " . ($resultado['casos_13mg'] ?? 0) . " | ";
+                    $mensaje .= "13F5: " . ($resultado['casos_13f5'] ?? 0) . " | ";
+                    $mensaje .= "Excluidos CD: " . ($resultado['registros_ya_enviados'] ?? 0); // CAMBIO AQUÍ
+                    $mensaje .= "</small>";
                     
                 } else {
                     $mensaje = $resultado['mensaje'] ?? 'Error desconocido al generar archivo';
@@ -86,8 +96,7 @@ if ($_POST['action'] ?? '' === 'generar_archivo200') {
         }
     }
 }
-
-// Función para generar archivo .txt físico
+// Función para generar archivo .txt físico - CORREGIDA
 function generarArchivoTXT($fecha, $db) {
     $ruta_archivos = "../../files/archivo200/";
     
@@ -101,7 +110,7 @@ function generarArchivoTXT($fecha, $db) {
     $nombre_archivo = "MAB_200_{$fecha_nombre}.txt";
     $ruta_completa = $ruta_archivos . $nombre_archivo;
     
-    // Obtener datos del archivo 200
+    // CORRECCIÓN: Obtener datos de Archivo_200_Temporal en lugar de Archivo_200
     $sql = "SELECT 
         campo_1_3,
         campo_4,
@@ -113,12 +122,10 @@ function generarArchivoTXT($fecha, $db) {
         campo_54_55,
         campo_56_63,
         campo_64_119
-    FROM Archivo_200 
-    WHERE fecha_procesamiento = ? 
-    AND estado = 'PROCESADO'
+    FROM Archivo_200_Temporal  -- CAMBIO: Usar la tabla temporal
     ORDER BY campo_5_29, campo_47_49";
     
-    $stmt = $db->secure_query($sql, array($fecha));
+    $stmt = $db->secure_query($sql);  // NOTA: Sin parámetros ya que no filtramos por fecha
     
     if ($stmt) {
         $archivo = fopen($ruta_completa, 'w');
@@ -192,7 +199,7 @@ function generarArchivoTXT($fecha, $db) {
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>Inicio
                             </a>
                         </li>
                         <?php if ($_SESSION['perfil'] === 'administrador'): ?>
@@ -205,11 +212,6 @@ function generarArchivoTXT($fecha, $db) {
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">
                                 <i class="bi bi-gear me-2"></i>Procesos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="archivos.php">
-                                <i class="bi bi-files me-2"></i>Archivos Subidos
                             </a>
                         </li>
                         <li class="nav-item">

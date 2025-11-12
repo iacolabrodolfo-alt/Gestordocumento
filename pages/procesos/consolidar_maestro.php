@@ -322,7 +322,7 @@ $historial = obtenerHistorialEjecuciones();
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>Inicio
                             </a>
                         </li>
                         <li class="nav-item">
@@ -333,11 +333,6 @@ $historial = obtenerHistorialEjecuciones();
                         <li class="nav-item">
                             <a class="nav-link" href="index.php">
                                 <i class="bi bi-gear me-2"></i>Procesos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="archivos.php">
-                                <i class="bi bi-files me-2"></i>Archivos Subidos
                             </a>
                         </li>
                         <li class="nav-item">

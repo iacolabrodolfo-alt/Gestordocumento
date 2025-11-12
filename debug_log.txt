@@ -3488,3 +3488,63 @@
 [2025-11-06 23:40:44] ✅ PROCESAMIENTO EXITOSO: Carga judicial completada. 0 registros insertados. 3681 registros movidos a histórico (REEMPLAZO_CARGA_INICIAL).
 [2025-11-06 23:40:44] =================== FIN SOLICITUD ===================
 
+[2025-11-11 18:48:59] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO - Rango: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-11 18:48:59] 🧹 Campos reseteados para nueva semana
+[2025-11-11 18:48:59] ✅ 0 registros actualizados con CD - NO GESTIONAR
+[2025-11-11 18:48:59] ✅ 0 registros actualizados con ENVIOS - YA SE ENVIO
+[2025-11-12 00:12:46] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO - Rango: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 00:12:46] 🧹 Campos reseteados para nueva semana
+[2025-11-12 00:12:46] ✅ 0 registros actualizados con CD - NO GESTIONAR
+[2025-11-12 00:12:46] ✅ 0 registros actualizados con ENVIOS - YA SE ENVIO
+[2025-11-12 00:44:25] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO
+[2025-11-12 00:44:25] 📅 Rango de fechas: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 00:44:25] 📊 Gestiones encontradas en el período: 0
+[2025-11-12 00:53:30] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO
+[2025-11-12 00:53:30] 📅 Rango de fechas: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 00:53:30] 📊 Gestiones encontradas en el período: 6642
+[2025-11-12 00:53:30] 🧹 Reseteando campos del maestro...
+[2025-11-12 00:53:30] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error reseteando maestro: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'FechaActualizacion'.
+[2025-11-12 00:56:24] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO
+[2025-11-12 00:56:24] 📅 Rango de fechas: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 00:56:24] 📊 Gestiones encontradas en el período: 6642
+[2025-11-12 00:56:24] 🧹 Reseteando campos del maestro...
+[2025-11-12 00:56:24] ✅ Campos reseteados: 3612 registros
+[2025-11-12 00:56:24] 🔍 Buscando gestiones CD...
+[2025-11-12 00:56:24] ✅ 0 registros actualizados con CD - NO GESTIONAR (Errores: 0)
+[2025-11-12 00:56:24] 🔍 Buscando gestiones Z1/Z3...
+[2025-11-12 00:56:24] ✅ 0 registros actualizados con ENVIOS - YA SE ENVIO (Errores: 0)
+[2025-11-12 00:56:24] 📈 Obteniendo estadísticas finales...
+[2025-11-12 00:56:24] ⚠️ Error obteniendo estadísticas
+[2025-11-12 00:56:24] 🎯 ACTUALIZACIÓN MAESTRO COMPLETADA: 3612 registros
+[2025-11-12 11:55:49] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO
+[2025-11-12 11:55:49] 📅 Rango de fechas: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 11:55:49] 📊 Gestiones encontradas en el período: 6642
+[2025-11-12 11:55:49] 🧹 Reseteando campos del maestro...
+[2025-11-12 11:55:49] ✅ Campos reseteados: 3612 registros
+[2025-11-12 11:55:49] 🔍 Buscando gestiones CD con tabla de códigos...
+[2025-11-12 11:55:49] 📋 Códigos CD encontrados: 0 - 
+[2025-11-12 11:55:49] ⚠️ No hay códigos CD para procesar
+[2025-11-12 11:55:49] 🔍 Buscando gestiones Z1/Z3...
+[2025-11-12 11:55:49] ✅ 0 registros actualizados con ENVIOS - YA SE ENVIO (Errores: 0)
+[2025-11-12 11:55:49] 📈 Obteniendo estadísticas finales...
+[2025-11-12 11:55:50] 🎯 ACTUALIZACIÓN MAESTRO COMPLETADA: 3612 registros
+[2025-11-12 11:56:41] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO
+[2025-11-12 11:56:41] 📅 Rango de fechas: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 11:56:41] 📊 Gestiones encontradas en el período: 6642
+[2025-11-12 11:56:41] 🧹 Reseteando campos del maestro...
+[2025-11-12 11:56:41] ✅ Campos reseteados: 3612 registros
+[2025-11-12 11:56:41] 🔍 Buscando gestiones CD con tabla de códigos...
+[2025-11-12 11:56:41] 📋 Códigos CD encontrados: 0 - 
+[2025-11-12 11:56:41] ⚠️ No hay códigos CD para procesar
+[2025-11-12 11:56:41] 🔍 Buscando gestiones Z1/Z3...
+[2025-11-12 11:56:41] ✅ 0 registros actualizados con ENVIOS - YA SE ENVIO (Errores: 0)
+[2025-11-12 11:56:41] 📈 Obteniendo estadísticas finales...
+[2025-11-12 11:56:41] 🎯 ACTUALIZACIÓN MAESTRO COMPLETADA: 3612 registros
+[2025-11-12 12:32:21] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-12 12:32:21] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error ejecutando SP: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Período: 2025-11-10 00:00:00 hasta 2025-11-15 20:00:00
+[2025-11-12 14:40:50] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-12 14:40:50] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error: The conversion of a varchar data type to a datetime data type resulted in an out-of-range value.
+[2025-11-12 14:42:14] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-12 14:42:14] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error: The datepart hour is not supported by date function dateadd for data type date.
+[2025-11-12 15:46:27] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-12 15:46:27] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642

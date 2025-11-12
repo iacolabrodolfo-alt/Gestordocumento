@@ -1,12 +1,23 @@
-# Archivos y carpetas de Visual Studio
+# ==== Visual Studio y SSIS ====
 .vs/
 *.user
 *.suo
 *.dbmdl
+*.cache
+*.bak
+*.dtsx.ide
 
-# Archivos temporales y binarios
+# ==== Carpetas temporales ====
 bin/
 obj/
+Debug/
+Release/
+
+# ==== Logs y temporales ====
 *.log
 *.tmp
 *.vsidx
+
+# ==== Archivos del sistema ====
+Thumbs.db
+Desktop.ini

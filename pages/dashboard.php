@@ -42,8 +42,8 @@ $auth->require_auth();
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link active" href="dashboard.php">
-                                <i class="bi bi-speedometer2 me-2"></i>
-                                Dashboard
+                                <i class="bi bi-house-door-fill me-2"></i>
+                                Inicio
                             </a>
                         </li>
                         <?php if ($_SESSION['perfil'] === 'administrador'): ?>
@@ -52,6 +52,18 @@ $auth->require_auth();
                                 <i class="bi bi-people me-2"></i>
                                 Gestión de Usuarios
                             </a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard_ejecutivo.php">
+                                <i class="bi bi-speedometer2 me-2"></i>
+                                Dashboard Ejecutivo
+                            </a>
+                        </li>
+                                                </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="procesos/consulta_deudor.php">
+                                <i class="bi bi-search me-2"></i>Consulta Deudor
+                            </a>
+                        </li>
                         </li>
                         <?php endif; ?>
                         <li class="nav-item">
@@ -67,7 +79,7 @@ $auth->require_auth();
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
+                    <h1 class="h2">MAB Sistema de gestion</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group me-3">
                             <span class="navbar-text">
