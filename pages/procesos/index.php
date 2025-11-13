@@ -320,6 +320,11 @@ $mensaje_tipo = '';
                                 <i class="bi bi-chat-dots me-2"></i>Gestiones Diarias
                             </a>
                         </li>
+                                                <li class="nav-item">
+                            <a class="nav-link" href="inhibiciones.php">
+                                <i class="bi bi-shield-lock me-2"></i>Inhibiciones
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -495,6 +500,18 @@ $mensaje_tipo = '';
                                             <h5>Gestiones Diarias</h5>
                                             <p class="text-muted small">Procesa y consolida las gestiones diarias</p>
                                             <a href="gestiones.php" class="btn btn-outline-info btn-sm">Ejecutar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <!-- Ícono personalizado -->
+                                            <i class="bi bi-shield-lock text-danger fs-1 mb-3"></i>
+                                            <h5>Inhibiciones</h5>
+                                            <p class="text-muted small">Procesa y aplica inhibiciones</p>
+                                            <!-- Botón con color rojo suave -->
+                                            <a href="inhibiciones.php" class="btn btn-outline-danger btn-sm">Ejecutar</a>
                                         </div>
                                     </div>
                                 </div>

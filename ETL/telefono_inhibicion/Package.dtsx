@@ -2,19 +2,19 @@
 <DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
   DTS:refId="Package"
   DTS:CreationDate="11/12/2025 8:32:47 PM"
-  DTS:CreationName="Microsoft.Package"
+  DTS:CreationName="SSIS.Package.3"
   DTS:CreatorComputerName="NTBKSYM023"
   DTS:CreatorName="SYMRECOVER\rhernandez"
   DTS:DTSID="{92161847-5CE1-4170-9717-8920B6369992}"
-  DTS:ExecutableType="Microsoft.Package"
-  DTS:LastModifiedProductVersion="16.0.5556.0"
+  DTS:ExecutableType="SSIS.Package.3"
+  DTS:LastModifiedProductVersion="16.0.845.0"
   DTS:LocaleID="13322"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
   DTS:VersionBuild="1"
-  DTS:VersionGUID="{BD7B8D0C-E1F4-4531-A42A-35DC07CCA80B}">
+  DTS:VersionGUID="{A8552755-1F8E-4A3E-8679-D452237B5566}">
   <DTS:Property
-    DTS:Name="PackageFormatVersion">8</DTS:Property>
+    DTS:Name="PackageFormatVersion">6</DTS:Property>
   <DTS:ConnectionManagers>
     <DTS:ConnectionManager
       DTS:refId="Package.ConnectionManagers[NTBKSYM023.gestordocumento]"
@@ -161,10 +161,10 @@
   <DTS:Executables>
     <DTS:Executable
       DTS:refId="Package\Limpia tabla"
-      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:CreationName="Microsoft.SqlServer.Dts.Tasks.ExecuteSQLTask.ExecuteSQLTask, Microsoft.SqlServer.SQLTask, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"
       DTS:Description="Tarea Ejecutar SQL"
       DTS:DTSID="{03B88151-D88D-416B-8884-683A7603302D}"
-      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:ExecutableType="Microsoft.SqlServer.Dts.Tasks.ExecuteSQLTask.ExecuteSQLTask, Microsoft.SqlServer.SQLTask, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"
       DTS:LocaleID="-1"
       DTS:ObjectName="Limpia tabla"
       DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2022; © 2022 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
@@ -179,10 +179,10 @@
     </DTS:Executable>
     <DTS:Executable
       DTS:refId="Package\Tarea Flujo de datos"
-      DTS:CreationName="Microsoft.Pipeline"
+      DTS:CreationName="SSIS.Pipeline.3"
       DTS:Description="Tarea Flujo de datos"
       DTS:DTSID="{A970AAAE-27A7-42B6-BC18-DD9630C6095F}"
-      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:ExecutableType="SSIS.Pipeline.3"
       DTS:LocaleID="-1"
       DTS:ObjectName="Tarea Flujo de datos"
       DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
@@ -193,7 +193,7 @@
           <components>
             <component
               refId="Package\Tarea Flujo de datos\Destino de OLE DB"
-              componentClassID="Microsoft.OLEDBDestination"
+              componentClassID="DTSAdapter.OLEDBDestination.3"
               contactInfo="Destino de OLE DB;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; Todos los derechos reservados; http://www.microsoft.com/sql/support;4"
               description="Destino de OLE DB"
               name="Destino de OLE DB"
@@ -216,7 +216,7 @@
                   dataType="System.String"
                   description="Comando SQL para ejecutar."
                   name="SqlCommand"
-                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor, Microsoft.DataTransformationServices.Controls, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"></property>
                 <property
                   dataType="System.Int32"
                   description="Especifica la página de códigos de columna para utilizar cuando la información de página de códigos no está disponible en el origen de datos."
@@ -456,7 +456,7 @@
             </component>
             <component
               refId="Package\Tarea Flujo de datos\Origen de archivo plano"
-              componentClassID="Microsoft.FlatFileSource"
+              componentClassID="DTSAdapter.FlatFileSource.3"
               contactInfo="Origen de archivo plano;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; Todos los derechos reservados; http://www.microsoft.com/sql/support;1"
               description="Origen de archivo plano"
               localeId="13322"
@@ -882,7 +882,7 @@
 <!--Si edita manualmente esta sección y comete un error, puede eliminarlo. -->
 <!--El paquete podrá cargarse normalmente, pero se perderá la información de diseño anterior y el diseñador reorganizará los elementos automáticamente en la superficie de diseño.-->
 <Objects
-  Version="8">
+  Version="sql11">
   <!--Cada uno de los nodos siguientes contiene propiedades que no afectan al comportamiento en tiempo de ejecución.-->
   <Package
     design-time-name="Package">

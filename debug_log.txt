@@ -3548,3 +3548,17 @@
 [2025-11-12 14:42:14] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error: The datepart hour is not supported by date function dateadd for data type date.
 [2025-11-12 15:46:27] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
 [2025-11-12 15:46:27] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
+[2025-11-13 02:10:53] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 02:10:53] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
+[2025-11-13 02:12:39] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 02:12:39] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
+[2025-11-13 02:27:10] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 02:27:11] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error ejecutando SP: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Período: 2025-11-10 al 2025-11-15 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros reseteados: 3612 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros CD actualizados: 41 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros envíos actualizados: 0 | 
+[2025-11-13 02:28:41] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 02:28:42] 💥 ERROR ACTUALIZACIÓN MAESTRO: Error ejecutando SP: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Período: 2025-11-10 al 2025-11-15 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros reseteados: 3612 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros CD actualizados: 41 | [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Registros envíos actualizados: 0 | 
+[2025-11-13 02:30:46] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 02:30:46] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
+[2025-11-13 17:20:05] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 17:20:05] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
+[2025-11-13 17:21:34] 🔄 INICIANDO ACTUALIZACIÓN MAESTRO CON SP
+[2025-11-13 17:21:34] ✅ SP ejecutado exitosamente: Actualización completada. Total: 3612 | No Gestionar: 41 | Ya se Envió: 0 | Pendientes: 3571 | Gestiones: 6642
